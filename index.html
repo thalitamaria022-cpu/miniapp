@@ -41,7 +41,6 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    /* Estilização suave de barras de deslocamento */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -61,10 +60,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .gold-border-gradient {
-      border-image: linear-gradient(to bottom right, #e6c875, #5e4713, #222) 1;
-    }
-    /* Bloqueio contra gravação/menu de contexto de imagem e vídeo */
     video::-internal-media-controls-download-button {
       display:none;
     }
@@ -109,13 +104,11 @@
 
       <!-- Perfil / Validação OpenCV e Estado de Assinatura -->
       <div class="flex items-center gap-3">
-        <!-- Badge OpenCV de Segurança -->
         <div class="hidden lg:flex items-center gap-2 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1.5 rounded-full text-xs text-emerald-400">
           <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
           <span class="font-medium">Perfil OpenCV Aprovado</span>
         </div>
 
-        <!-- Botão de Estado de Assinatura -->
         <button 
           id="statusBadgeBtn" 
           onclick="abrirModalPlanos()"
@@ -125,7 +118,6 @@
           <span id="statusText">Visitante (Degustação)</span>
         </button>
 
-        <!-- Botão Pesquisa Mobile -->
         <button onclick="alternarPesquisaMobile()" class="sm:hidden p-2 rounded-lg bg-brand-surface text-zinc-300">
           <i data-lucide="search" class="w-5 h-5"></i>
         </button>
@@ -133,7 +125,7 @@
 
     </div>
 
-    <!-- Campo de Pesquisa Recolhível para Dispositivos Móveis -->
+    <!-- Campo de Pesquisa Mobile -->
     <div id="mobileSearchContainer" class="hidden sm:hidden pt-3">
       <div class="relative">
         <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
@@ -148,26 +140,24 @@
     </div>
   </header>
 
-  <!-- Barra de Notificação Multi-Ecrã e Blindagem -->
+  <!-- Notificação Topo -->
   <div class="bg-gradient-to-r from-brand-surface via-brand-card to-brand-surface border-b border-white/5 py-2 px-4 text-center">
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-2 text-[11px] md:text-xs text-zinc-400">
       <i data-lucide="tv-2" class="w-3.5 h-3.5 text-brand-gold"></i>
       <span>Compatível com Telemóvel, Tablet, Desktop (Telegram Web/App) e Smart TV</span>
       <span class="text-zinc-600 hidden md:inline">•</span>
-      <span class="text-emerald-400/90 hidden md:inline flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3 inline"></i> Transmissão HLS Encriptada Anti-Download</span>
+      <span class="text-emerald-400/90 hidden md:inline flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3 inline"></i> Transmissão Protegida Anti-Download</span>
     </div>
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 space-y-8">
     
-    <!-- Destaque / Hero Banner Interativo -->
+    <!-- Destaque / Hero Banner -->
     <section id="heroSection" class="relative rounded-2xl md:rounded-3xl overflow-hidden bg-brand-surface border border-white/10 shadow-2xl min-h-[340px] md:min-h-[420px] flex items-end">
-      <!-- Imagem de Fundo Dinâmica com Gradiente -->
       <img id="heroImg" src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1600&auto=format&fit=crop&q=80" alt="Destaque" class="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.4] transition-all duration-700">
       <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-r from-brand-dark/80 via-transparent to-transparent hidden md:block"></div>
 
-      <!-- Conteúdo do Destaque -->
       <div class="relative z-10 p-6 md:p-12 max-w-2xl space-y-3.5">
         <div class="flex flex-wrap items-center gap-2">
           <span class="bg-brand-gold text-black font-extrabold text-[10px] md:text-xs uppercase px-2.5 py-1 rounded-md tracking-wider">
@@ -177,24 +167,24 @@
             <i data-lucide="sparkles" class="w-3 h-3 text-brand-gold"></i> Exclusivo
           </span>
           <span class="text-zinc-400 text-xs flex items-center gap-1">
-            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> Ep. 1 Gratuito
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> Ep. 1 Disponível
           </span>
         </div>
 
         <h1 id="heroTitle" class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-          Yabani: Corações Selvagens
+          Anne Yarisi
         </h1>
 
         <p id="heroDesc" class="text-zinc-300 text-xs sm:text-sm line-clamp-2 md:line-clamp-3 max-w-xl leading-relaxed">
-          A impressionante odisseia de Yaman, sequestrado em criança de uma família nobre e forçado a sobreviver nas ruas hostis. Uma saga dramática repleta de reviravoltas intensas.
+          Acompanhe os episódios completos e legendados de Anne Yarisi diretamente no seu aplicativo do Telegram com qualidade máxima.
         </p>
 
         <div class="pt-2 flex flex-wrap items-center gap-3">
           <button 
-            onclick="abrirSeriePorId('yabani')"
+            onclick="abrirSeriePorId('anne-yarisi')"
             class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-gold to-brand-goldDark text-black font-bold text-xs sm:text-sm flex items-center gap-2 shadow-gold-sm hover:scale-[1.02] active:scale-95 transition"
           >
-            <i data-lucide="play" class="w-4 h-4 fill-black"></i> Assistir Episódio 01 Grátis
+            <i data-lucide="play" class="w-4 h-4 fill-black"></i> Assistir Episódio 01
           </button>
           <button 
             onclick="abrirModalPlanos()"
@@ -206,16 +196,15 @@
       </div>
     </section>
 
-    <!-- Navegação por Categorias / Abas -->
+    <!-- Categorias -->
     <section class="space-y-4">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <h2 class="text-base md:text-xl font-bold text-white flex items-center gap-2">
           <i data-lucide="layout-grid" class="w-5 h-5 text-brand-gold"></i> Catálogo Completo
         </h2>
-        <span id="totalTitlesCount" class="text-xs text-zinc-400 font-medium">8 Séries Disponíveis</span>
+        <span id="totalTitlesCount" class="text-xs text-zinc-400 font-medium">6 Séries Disponíveis</span>
       </div>
 
-      <!-- Abas Estilizadas com Suporte Touch e Desktop -->
       <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs md:text-sm">
         <button onclick="selecionarCategoria('todas')" class="categoria-btn px-4 py-2 rounded-xl border font-semibold whitespace-nowrap transition bg-brand-gold text-black border-brand-gold" data-cat="todas">
           ✨ Todas as Produções
@@ -235,13 +224,12 @@
       </div>
     </section>
 
-    <!-- Grelha Responsiva de Séries (2 col telemóvel, 4 tablet, 5-6 desktop/TV) -->
+    <!-- Grid de Séries -->
     <section>
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 md:gap-5">
-        <!-- Renderizado dinamicamente via JavaScript -->
+        <!-- Renderizado dinamicamente -->
       </div>
       
-      <!-- Mensagem caso nenhum título seja encontrado -->
       <div id="emptyCatalogState" class="hidden text-center py-16 space-y-3">
         <i data-lucide="film" class="w-12 h-12 text-zinc-600 mx-auto"></i>
         <p class="text-zinc-400 text-sm">Nenhuma série encontrada para esta categoria ou pesquisa.</p>
@@ -251,14 +239,12 @@
 
   </main>
 
-  <!-- Modal / Vista de Detalhes da Série & Player de Vídeo -->
+  <!-- Modal Detalhes & Episódios -->
   <div id="seriesModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl hidden overflow-y-auto">
     <div class="min-h-screen px-3 sm:px-6 py-6 md:py-10 max-w-5xl mx-auto flex flex-col justify-center">
       
-      <!-- Cartão Principal do Modal -->
       <div class="bg-brand-card border border-white/10 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl relative flex flex-col">
         
-        <!-- Barra Superior de Navegação -->
         <div class="flex items-center justify-between px-4 md:px-6 py-3.5 border-b border-white/10 bg-brand-surface/80">
           <button onclick="fecharSerieModal()" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brand-gold hover:text-brand-goldLight transition">
             <i data-lucide="chevron-left" class="w-4 h-4"></i> Voltar ao Catálogo
@@ -274,53 +260,27 @@
           </div>
         </div>
 
-        <!-- Área do Player de Vídeo com Aspect Ratio 16:9 -->
         <div class="relative w-full aspect-video bg-black flex items-center justify-center border-b border-white/10 overflow-hidden">
+          <img id="modalCoverImg" src="" alt="Capa da Série" class="w-full h-full object-cover filter brightness-[0.35]">
           
-          <!-- Leitor de Vídeo HTML5 Seguro -->
-          <video 
-            id="mainVideoPlayer" 
-            controls 
-            controlsList="nodownload noplaybackrate" 
-            disablePictureInPicture 
-            oncontextmenu="return false;"
-            class="w-full h-full object-contain"
-            poster="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200"
-          >
-            <source id="videoSource" src="" type="video/mp4">
-            O seu navegador não suporta streaming de vídeo direto.
-          </video>
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center mb-3">
+              <i data-lucide="film" class="w-8 h-8 text-brand-gold"></i>
+            </div>
+            <h3 id="modalPlayerTitle" class="text-xl md:text-2xl font-black text-white mb-2">Anne Yarisi</h3>
+            <p class="text-xs md:text-sm text-zinc-300 max-w-md">Selecione um episódio na lista abaixo para receber e assistir diretamente no Telegram.</p>
+          </div>
 
-          <!-- Marca de Água Dinâmica Anti-Vazamento (Projeta o ID do Telegram de forma translúcida) -->
-          <div class="absolute bottom-4 right-4 pointer-events-none opacity-20 text-[10px] text-white tracking-widest uppercase font-mono select-none">
+          <div class="absolute bottom-4 right-4 pointer-events-none opacity-30 text-[10px] text-white tracking-widest uppercase font-mono select-none">
             ID: <span id="watermarkUserId">98412894</span> • VIP STREAM
           </div>
-
-          <!-- Alerta de Bloqueio Sobreposto (Se tentar forçar reprodução sem assinar) -->
-          <div id="videoLockOverlay" class="absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center hidden">
-            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-brand-gold/40 flex items-center justify-center mb-3">
-              <i data-lucide="lock" class="w-7 h-7 text-brand-gold"></i>
-            </div>
-            <h3 class="text-lg md:text-xl font-bold text-white mb-1">Episódio Exclusivo para Assinantes VIP</h3>
-            <p class="text-xs md:text-sm text-zinc-400 max-w-md mb-4">
-              Este capítulo pertence ao acervo privado. Assine o plano mensal, trimestral ou semestral para desbloquear toda a temporada sem restrições.
-            </p>
-            <button 
-              onclick="abrirModalPlanos()"
-              class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold to-brand-goldDark text-black font-bold text-xs sm:text-sm shadow-gold-sm hover:scale-105 active:scale-95 transition flex items-center gap-2"
-            >
-              <i data-lucide="crown" class="w-4 h-4 fill-black"></i> Ver Planos Disponíveis (PIX Imediato)
-            </button>
-          </div>
-
         </div>
 
-        <!-- Informações da Série & Separador de Episódios -->
         <div class="p-4 sm:p-6 md:p-8 space-y-6">
           <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 mb-1.5 text-xs text-zinc-400">
-                <span id="modalYear">2024</span>
+                <span id="modalYear">2026</span>
                 <span>•</span>
                 <span id="modalGenre">Drama / Romance</span>
                 <span>•</span>
@@ -339,17 +299,16 @@
             Sinopse detalhada do enredo...
           </p>
 
-          <!-- Lista de Episódios da Série -->
           <div class="pt-4 border-t border-white/10 space-y-3">
             <div class="flex items-center justify-between">
               <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                 <i data-lucide="list-video" class="w-4 h-4 text-brand-gold"></i> Temporada 1 - Episódios
               </h3>
-              <span class="text-[11px] text-zinc-400">Degustação aberta no Ep. 01</span>
+              <span class="text-[11px] text-zinc-400">Clique para abrir no Bot</span>
             </div>
 
             <div id="episodesListContainer" class="space-y-2.5">
-              <!-- Episódios inseridos dinamicamente -->
+              <!-- Episódios gerados dinamicamente -->
             </div>
           </div>
 
@@ -360,18 +319,16 @@
     </div>
   </div>
 
-  <!-- Modal de Assinatura, Filtro OpenCV e Pagamento PIX -->
+  <!-- Modal Planos PIX -->
   <div id="plansModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden overflow-y-auto">
     <div class="min-h-screen px-4 py-8 max-w-2xl mx-auto flex flex-col justify-center">
       
       <div class="bg-brand-card border border-brand-gold/30 rounded-3xl p-6 sm:p-8 shadow-gold-glow relative space-y-6">
         
-        <!-- Botão Fechar -->
         <button onclick="fecharModalPlanos()" class="absolute top-5 right-5 p-2 rounded-full text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
 
-        <!-- Etapa 1: Seleção de Plano -->
         <div id="stepSelectPlan" class="space-y-6">
           <div class="text-center space-y-2">
             <span class="text-[11px] font-bold tracking-widest text-brand-gold uppercase bg-brand-gold/10 px-3 py-1 rounded-full border border-brand-gold/20">
@@ -383,37 +340,33 @@
             </p>
           </div>
 
-          <!-- Cartões dos 3 Planos Oficiais -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
             
-            <!-- Plano Mensal -->
-            <div onclick="selecionarPlano('mensal', 12.00, 30)" class="plano-card cursor-pointer border border-white/10 hover:border-brand-gold/60 bg-brand-surface rounded-2xl p-4.5 text-center transition flex flex-col justify-between hover:scale-[1.02] active:scale-95 space-y-3">
+            <div onclick="selecionarPlano('mensal', 15.00, 30)" class="plano-card cursor-pointer border border-white/10 hover:border-brand-gold/60 bg-brand-surface rounded-2xl p-4.5 text-center transition flex flex-col justify-between hover:scale-[1.02] active:scale-95 space-y-3">
               <div>
                 <span class="text-[11px] font-bold text-zinc-400 uppercase">Mensal</span>
-                <div class="text-2xl font-black text-white mt-1">R$ 12<span class="text-xs font-normal text-zinc-400">,00</span></div>
+                <div class="text-2xl font-black text-white mt-1">R\$ 15<span class="text-xs font-normal text-zinc-400">,00</span></div>
                 <div class="text-[11px] text-zinc-400 mt-0.5">30 Dias de Acesso</div>
               </div>
               <button class="w-full py-2 rounded-xl bg-white/10 text-xs font-semibold text-zinc-200">Escolher</button>
             </div>
 
-            <!-- Plano Trimestral (Mais Popular) -->
-            <div onclick="selecionarPlano('trimestral', 30.00, 90)" class="plano-card cursor-pointer border-2 border-brand-gold bg-gradient-to-b from-brand-surface to-brand-card rounded-2xl p-4.5 text-center transition flex flex-col justify-between scale-[1.03] shadow-gold-sm space-y-3 relative">
+            <div onclick="selecionarPlano('trimestral', 40.00, 90)" class="plano-card cursor-pointer border-2 border-brand-gold bg-gradient-to-b from-brand-surface to-brand-card rounded-2xl p-4.5 text-center transition flex flex-col justify-between scale-[1.03] shadow-gold-sm space-y-3 relative">
               <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-gold text-black font-extrabold text-[9px] uppercase px-2.5 py-0.5 rounded-full tracking-wider shadow">
                 Mais Escolhido
               </span>
               <div>
                 <span class="text-[11px] font-bold text-brand-gold uppercase">Trimestral</span>
-                <div class="text-2xl font-black text-white mt-1">R$ 30<span class="text-xs font-normal text-zinc-400">,00</span></div>
+                <div class="text-2xl font-black text-white mt-1">R\$ 40<span class="text-xs font-normal text-zinc-400">,00</span></div>
                 <div class="text-[11px] text-brand-goldLight mt-0.5">90 Dias de Acesso</div>
               </div>
               <button class="w-full py-2 rounded-xl bg-brand-gold text-black font-bold text-xs">Escolher</button>
             </div>
 
-            <!-- Plano Semestral -->
-            <div onclick="selecionarPlano('semestral', 60.00, 180)" class="plano-card cursor-pointer border border-white/10 hover:border-brand-gold/60 bg-brand-surface rounded-2xl p-4.5 text-center transition flex flex-col justify-between hover:scale-[1.02] active:scale-95 space-y-3">
+            <div onclick="selecionarPlano('semestral', 75.00, 180)" class="plano-card cursor-pointer border border-white/10 hover:border-brand-gold/60 bg-brand-surface rounded-2xl p-4.5 text-center transition flex flex-col justify-between hover:scale-[1.02] active:scale-95 space-y-3">
               <div>
                 <span class="text-[11px] font-bold text-zinc-400 uppercase">Semestral</span>
-                <div class="text-2xl font-black text-white mt-1">R$ 60<span class="text-xs font-normal text-zinc-400">,00</span></div>
+                <div class="text-2xl font-black text-white mt-1">R\$ 75<span class="text-xs font-normal text-zinc-400">,00</span></div>
                 <div class="text-[11px] text-zinc-400 mt-0.5">180 Dias de Acesso</div>
               </div>
               <button class="w-full py-2 rounded-xl bg-white/10 text-xs font-semibold text-zinc-200">Escolher</button>
@@ -421,19 +374,17 @@
 
           </div>
 
-          <!-- Notificação de Regras do Robô (OpenCV + 2 Letras + @) -->
           <div class="bg-brand-surface border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3 text-xs text-zinc-300">
             <i data-lucide="shield-alert" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
             <div>
               <p class="font-bold text-emerald-300 mb-0.5">Regras Ativas de Verificação Automática</p>
               <p class="text-zinc-400 text-[11px] leading-relaxed">
-                O seu perfil deve conter uma <strong>fotografia nítida com rosto humano visível</strong>, nome com pelo menos <strong>2 letras</strong> e <strong>@username</strong> definido no Telegram. O nosso sistema OpenCV valida estes requisitos antes de aceitar a transação.
+                O seu perfil deve conter uma <strong>fotografia nítida com rosto humano visível</strong>, nome com pelo menos <strong>2 letras</strong> e <strong>@username</strong> definido no Telegram. O nosso sistema valida estes requisitos antes de aceitar a transação.
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Etapa 2: Simulação de Fatura PIX Mercado Pago -->
         <div id="stepPixPayment" class="space-y-5 hidden">
           <div class="text-center space-y-1">
             <span class="text-[10px] font-bold text-emerald-400 uppercase bg-emerald-950/80 border border-emerald-500/30 px-3 py-1 rounded-full">
@@ -441,17 +392,15 @@
             </span>
             <h3 class="text-xl sm:text-2xl font-bold text-white mt-2">Pagamento via PIX Automático</h3>
             <p class="text-xs text-zinc-400">
-              Plano Selecionado: <span id="pixPlanName" class="text-brand-gold font-bold">Trimestral (90 Dias)</span> • Total: <span id="pixPlanPrice" class="text-white font-bold">R$ 30,00</span>
+              Plano Selecionado: <span id="pixPlanName" class="text-brand-gold font-bold">Trimestral (90 Dias)</span> • Total: <span id="pixPlanPrice" class="text-white font-bold">R\$ 40,00</span>
             </p>
           </div>
 
-          <!-- QR Code Simulado Dinâmico -->
           <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl max-w-[200px] mx-auto shadow-lg">
             <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020126580014br.gov.bcb.pix0136streaming-vip-catalogo-telegram5204000053039865802BR5920VIP_STREAMING_TELEGRAM6009SAO_PAULO62070503***6304E2CA" alt="QR Code PIX" class="w-40 h-40">
             <span class="text-[10px] text-zinc-600 font-semibold mt-2">Aponte a câmara do telemóvel</span>
           </div>
 
-          <!-- Código Copia e Cola -->
           <div class="space-y-1.5">
             <label class="text-[11px] font-semibold text-zinc-400">Código PIX Copia e Cola:</label>
             <div class="flex items-center gap-2">
@@ -459,11 +408,11 @@
                 type="text" 
                 id="pixCopyInput" 
                 readonly 
-                value="00020126580014br.gov.bcb.pix0136streaming-vip-catalogo-telegram5204000053039865802BR5920VIP_STREAMING_TELEGRAM6009SAO_PAULO62070503***6304E2CA"
+                value="00020126580014br.gov.bcb.pix0136streaming-vip-catalogo-telegram5204000053039865802BR5920VIP_STREAMING_TELEGRAM6009SAO_PAULO62070503***6304E2CA" 
                 class="w-full bg-brand-surface border border-white/15 rounded-xl px-3 py-2 text-xs font-mono text-zinc-300 focus:outline-none"
               >
               <button 
-                onclick="copiarChavePix()"
+                onclick="copiarChavePix()" 
                 class="px-4 py-2 rounded-xl bg-brand-gold hover:bg-brand-goldLight text-black text-xs font-bold shrink-0 flex items-center gap-1.5 transition"
               >
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="btnCopyText">Copiar</span>
@@ -471,25 +420,23 @@
             </div>
           </div>
 
-          <!-- Botões de Ação do Checkout -->
           <div class="space-y-2 pt-2">
             <button 
-              onclick="simularAprovacaoPix()"
+              onclick="simularAprovacaoPix()" 
               class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition"
             >
               <i data-lucide="check-circle" class="w-4 h-4"></i> Já Fiz o Pagamento (Confirmar e Ativar)
             </button>
             <button 
-              onclick="voltarParaSelecaoPlanos()"
+              onclick="voltarParaSelecaoPlanos()" 
               class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-400 transition"
             >
               Escolher Outro Plano
             </button>
           </div>
 
-          <!-- Aviso de Ronda e Vencimento -->
           <p class="text-[11px] text-zinc-500 text-center leading-relaxed">
-            Após a confirmação, o bot atribui os dias no seu banco de dados e liberta todos os vídeos no Mini App e no Canal VIP de Fragmans.
+            Após a confirmação, o bot atribui os dias no seu banco de dados e liberta todos os vídeos no Mini App.
           </p>
         </div>
 
@@ -498,14 +445,13 @@
     </div>
   </div>
 
-  <!-- Toast Notificação Flutuante -->
+  <!-- Toast Notificação -->
   <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-brand-card border border-brand-gold/40 text-white px-4 py-3 rounded-2xl shadow-gold-sm text-xs flex items-center gap-2.5 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
     <i id="toastIcon" data-lucide="check" class="w-4 h-4 text-brand-gold"></i>
     <span id="toastMessage">Notificação do sistema</span>
   </div>
 
   <script>
-    /* Estado Global da Aplicação */
     const appState = {
       isVip: false,
       userPlan: null,
@@ -515,22 +461,21 @@
       sampleUserId: '98412894'
     };
 
-    /* Base de Dados de Séries, Doramas e Novelas */
+    /* Base de Dados Atualizada com Anne Yarisi e o link do Bot */
     const seriesDatabase = [
       {
-        id: "yabani",
-        title: "Yabani: Corações Selvagens",
+        id: "anne-yarisi",
+        title: "Anne Yarisi",
         category: "turcas-leg",
         categoryLabel: "Turca Legendada",
-        year: 2024,
-        genre: "Drama Familiar / Suspense",
+        year: 2026,
+        genre: "Drama / Novela Turca",
         cover: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80",
-        desc: "A emocionante saga de Yaman, um rapaz que foi raptado na infância e cresceu nas ruas de Istambul com um grupo de amigos que se tornaram a sua família. Anos mais tarde, o destino coloca-o frente a frente com as suas origens abastadas.",
+        desc: "A emocionante narrativa de Anne Yarisi com legendas exclusivas e imagem em alta definição.",
         episodes: [
-          { number: 1, title: "Episódio 01 - O Reencontro Inesperado", duration: "48 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-          { number: 2, title: "Episódio 02 - Segredos do Passado", duration: "52 min", free: false, videoUrl: "" },
-          { number: 3, title: "Episódio 03 - Conflito de Sangue", duration: "45 min", free: false, videoUrl: "" },
-          { number: 4, title: "Episódio 04 - A Grande Verdade", duration: "50 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "127 min", free: true, videoUrl: "https://t.me/GseriesturcasNV_bot?start=assistir_1" },
+          { number: 2, title: "Episódio 02", duration: "Em breve", free: false, videoUrl: "" },
+          { number: 3, title: "Episódio 03", duration: "Em breve", free: false, videoUrl: "" }
         ]
       },
       {
@@ -541,11 +486,10 @@
         year: 2024,
         genre: "Romance / Mistério Psicológico",
         cover: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80",
-        desc: "Uma jovem restauradora de obras de arte em Seul descobre que certos retratos antigos escondem pistas sobre o desaparecimento do seu pai, aproximando-se de um jovem empresário enigmático com segredos próprios.",
+        desc: "Uma jovem restauradora de obras de arte em Seul descobre que certos retratos antigos escondem pistas sobre o desaparecimento do seu pai.",
         episodes: [
-          { number: 1, title: "Episódio 01 - O Quadro sem Rosto", duration: "55 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
-          { number: 2, title: "Episódio 02 - A Galeria Noturna", duration: "58 min", free: false, videoUrl: "" },
-          { number: 3, title: "Episódio 03 - Cores do Passado", duration: "61 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "55 min", free: true, videoUrl: "" },
+          { number: 2, title: "Episódio 02", duration: "58 min", free: false, videoUrl: "" }
         ]
       },
       {
@@ -556,10 +500,10 @@
         year: 2023,
         genre: "Drama / Superação",
         cover: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=800&auto=format&fit=crop&q=80",
-        desc: "Uma história comovente de resiliência e justiça no coração do mar Egeu. Uma jovem luta com coragem exemplar para recuperar a sua dignidade e recomeçar a vida contra todas as adversidades.",
+        desc: "Uma história comovente de resiliência e justiça no coração do mar Egeu.",
         episodes: [
-          { number: 1, title: "Episódio 01 - O Dia da Tempestade", duration: "46 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-          { number: 2, title: "Episódio 02 - Promessas Quebradas", duration: "50 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "46 min", free: true, videoUrl: "" },
+          { number: 2, title: "Episódio 02", duration: "50 min", free: false, videoUrl: "" }
         ]
       },
       {
@@ -570,10 +514,9 @@
         year: 2024,
         genre: "Comédia Romântica / Drama",
         cover: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80",
-        desc: "Um romance proibido e repleto de momentos calorosos entre duas pessoas de origens completamente opostas que descobrem lealdade e afeto genuíno num cenário improvável.",
+        desc: "Um romance proibido e repleto de momentos calorosos entre duas pessoas de origens opostas.",
         episodes: [
-          { number: 1, title: "Episódio 01 - Um Salto no Desconhecido", duration: "65 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-          { number: 2, title: "Episódio 02 - Refúgio Inesperado", duration: "70 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "65 min", free: true, videoUrl: "" }
         ]
       },
       {
@@ -584,10 +527,9 @@
         year: 2023,
         genre: "Drama / Intrigas",
         cover: "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=800&auto=format&fit=crop&q=80",
-        desc: "Uma jovem de beleza hipnotizante e inteligência aguçada decide usar todas as armas disponíveis para ascender na sociedade, confrontando os dilemas morais entre a riqueza material e o verdadeiro amor.",
+        desc: "Uma mulher determinada usa todas as armas disponíveis para ascender socialmente.",
         episodes: [
-          { number: 1, title: "Episódio 01 - A Promessa do Espelho", duration: "42 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-          { number: 2, title: "Episódio 02 - Alianças Perigosas", duration: "44 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "42 min", free: true, videoUrl: "" }
         ]
       },
       {
@@ -598,16 +540,14 @@
         year: 2024,
         genre: "Drama Familiar / Juventude",
         cover: "https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?w=800&auto=format&fit=crop&q=80",
-        desc: "Quatro irmãos que perdem os pais de forma trágica mantêm-se unidos contra todas as tempestades, partilhando lealdade, perseverança e esperança num futuro melhor.",
+        desc: "Quatro irmãos enfrentam os obstáculos da vida mantendo a honra e o amor familiar.",
         episodes: [
-          { number: 1, title: "Episódio 01 - Quando Tudo Muda", duration: "53 min", free: true, videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4" },
-          { number: 2, title: "Episódio 02 - A Força da União", duration: "56 min", free: false, videoUrl: "" }
+          { number: 1, title: "Episódio 01", duration: "53 min", free: true, videoUrl: "" }
         ]
       }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Inicializar Telegram WebApp se disponível
       if (window.Telegram && window.Telegram.WebApp) {
         const tg = window.Telegram.WebApp;
         tg.ready();
@@ -651,14 +591,12 @@
               <img src="${serie.cover}" alt="${serie.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
               
-              <!-- Badges de Topo -->
               <div class="absolute top-2 left-2 flex flex-col gap-1 items-start">
                 <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-brand-gold border border-brand-gold/30">
                   ${serie.categoryLabel}
                 </span>
               </div>
 
-              <!-- Indicador de Degustação -->
               <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] text-white">
                 <span class="bg-emerald-500/90 text-black font-extrabold px-1.5 py-0.5 rounded shadow">
                   EP 1 GRÁTIS
@@ -721,16 +659,13 @@
       appState.selectedSeries = serie;
 
       document.getElementById('modalTitle').innerText = serie.title;
+      document.getElementById('modalPlayerTitle').innerText = serie.title;
       document.getElementById('modalDescription').innerText = serie.desc;
       document.getElementById('modalYear').innerText = serie.year;
       document.getElementById('modalGenre').innerText = serie.genre;
       document.getElementById('modalLanguageBadge').innerText = serie.categoryLabel;
+      document.getElementById('modalCoverImg').src = serie.cover;
 
-      const player = document.getElementById('mainVideoPlayer');
-      player.poster = serie.cover;
-      document.getElementById('videoLockOverlay').classList.add('hidden');
-
-      // Carregar lista de episódios
       const container = document.getElementById('episodesListContainer');
       container.innerHTML = "";
 
@@ -747,16 +682,16 @@
             </div>
             <div>
               <div class="text-xs sm:text-sm font-semibold text-white">${ep.title}</div>
-              <div class="text-[11px] text-zinc-400">${ep.duration} • 1080p Stream HLS</div>
+              <div class="text-[11px] text-zinc-400">${ep.duration} • Telegram Delivery VIP</div>
             </div>
           </div>
           <div>
             ${
               isUnlocked 
-              ? `<button onclick="reproduzirEpisodio('${ep.videoUrl}', '${ep.title}', ${ep.free})" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1.5 transition">
+              ? `<button onclick="reproduzirEpisodio('${ep.videoUrl}', '${ep.title}')" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1.5 transition">
                    <i data-lucide="play" class="w-3.5 h-3.5 fill-black"></i> Assistir
                  </button>`
-              : `<button onclick="bloquearERedirecionarAssinatura()" class="px-3.5 py-1.5 rounded-lg bg-brand-gold/15 hover:bg-brand-gold/25 border border-brand-gold/40 text-brand-gold text-xs font-bold flex items-center gap-1.5 transition">
+              : `<button onclick="abrirModalPlanos()" class="px-3.5 py-1.5 rounded-lg bg-brand-gold/15 hover:bg-brand-gold/25 border border-brand-gold/40 text-brand-gold text-xs font-bold flex items-center gap-1.5 transition">
                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Assinar VIP
                  </button>`
             }
@@ -764,9 +699,6 @@
         `;
         container.appendChild(item);
       });
-
-      // Abrir por defeito o primeiro episódio gratuito para degustação
-      reproduzirEpisodio(serie.episodes[0].videoUrl, serie.episodes[0].title, true);
 
       document.getElementById('seriesModal').classList.remove('hidden');
       lucide.createIcons();
@@ -777,34 +709,24 @@
     }
 
     function fecharSerieModal() {
-      const player = document.getElementById('mainVideoPlayer');
-      player.pause();
       document.getElementById('seriesModal').classList.add('hidden');
     }
 
-    function reproduzirEpisodio(url, titulo, isFree) {
-      const player = document.getElementById('mainVideoPlayer');
-      const lockOverlay = document.getElementById('videoLockOverlay');
-
-      if (!isFree && !appState.isVip) {
-        player.pause();
-        lockOverlay.classList.remove('hidden');
+    function reproduzirEpisodio(url, titulo) {
+      if (!url) {
+        mostrarToast("Este episódio ainda estará disponível em breve!");
         return;
       }
 
-      lockOverlay.classList.add('hidden');
-      const source = document.getElementById('videoSource');
-      source.src = url || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-      player.load();
-      player.play().catch(() => {});
-      mostrarToast(`A reproduzir: ${titulo}`);
-    }
+      mostrarToast(`A abrir: ${titulo} no Telegram...`);
 
-    function bloquearERedirecionarAssinatura() {
-      const player = document.getElementById('mainVideoPlayer');
-      player.pause();
-      document.getElementById('videoLockOverlay').classList.remove('hidden');
-      abrirModalPlanos();
+      // Se estiver aberto como Mini App dentro do Telegram
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink(url);
+      } else {
+        // Se estiver no navegador comum
+        window.open(url, '_blank');
+      }
     }
 
     function abrirModalPlanos() {
@@ -844,7 +766,7 @@
       const input = document.getElementById('pixCopyInput');
       input.select();
       input.setSelectionRange(0, 99999);
-      document.execCommand('copy');
+      navigator.clipboard.writeText(input.value);
       
       document.getElementById('btnCopyText').innerText = "Copiado!";
       mostrarToast("Código PIX copiado com sucesso!");
@@ -856,7 +778,6 @@
     function simularAprovacaoPix() {
       appState.isVip = true;
       
-      // Atualizar Badge de Topo
       document.getElementById('statusText').innerText = "VIP Ativo (" + (appState.userPlan ? appState.userPlan.dias : 90) + " dias)";
       const dot = document.getElementById('statusDot');
       dot.className = "w-2 h-2 rounded-full bg-emerald-400";
@@ -864,7 +785,6 @@
       fecharModalPlanos();
       mostrarToast("🎉 Pagamento PIX aprovado! Todo o catálogo foi desbloqueado.");
 
-      // Se estiver com modal de série aberto, recarregar botões desbloqueados
       if (appState.selectedSeries) {
         abrirDetalhesSerie(appState.selectedSeries.id);
       }
@@ -878,7 +798,7 @@
           url: window.location.href
         }).catch(() => {});
       } else {
-        mostrarToast("Link do Mini App copiado para partilhar!");
+        mostrarToast("Link do Mini App pronto para partilhar!");
       }
     }
 
