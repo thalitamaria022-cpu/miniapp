@@ -21,7 +21,7 @@
         extend: {
           colors: {
             brand: {
-              gold: '#E5C07B',
+              gold: 'var(--brand-gold, #E5C07B)',
               goldLight: '#F3D69B',
               goldDark: '#B8860B',
               dark: '#080A0E',
@@ -36,7 +36,9 @@
   </script>
 
   <style>
-    /* Suavização de scrollbars em dispositivos móveis */
+    :root {
+      --brand-gold: #E5C07B;
+    }
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -60,9 +62,12 @@
       transform: scale(0.97);
     }
     .gold-gradient-text {
-      background: linear-gradient(135deg, #F9E79F, #D4AF37, #AA7C11);
+      background: linear-gradient(135deg, #F9E79F, var(--brand-gold, #D4AF37), #AA7C11);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+    .dynamic-bg-gold {
+      background-color: var(--brand-gold, #E5C07B) !important;
     }
   </style>
 </head>
@@ -71,9 +76,9 @@
   <!-- Top Bar / Cabeçalho com Logotipo Oficial -->
   <header class="sticky top-0 z-40 bg-[#0B0F17]/95 backdrop-blur-md border-b border-brand-border px-4 py-3 flex items-center justify-between shadow-lg shadow-black/40">
     <div class="flex items-center gap-3">
-      <!-- Logo com fallback caso o arquivo local logo.jpg não seja encontrado -->
       <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-brand-gold/60 shadow-md shadow-brand-gold/20 flex-shrink-0 bg-brand-surface flex items-center justify-center">
         <img 
+          id="appLogoImg"
           src="logo.jpg" 
           alt="Séries Turcas NV" 
           class="w-full h-full object-cover"
@@ -82,7 +87,7 @@
       </div>
 
       <div class="flex flex-col">
-        <h1 class="font-extrabold text-sm sm:text-base leading-tight gold-gradient-text tracking-wide flex items-center gap-1.5">
+        <h1 id="appTitleText" class="font-extrabold text-sm sm:text-base leading-tight gold-gradient-text tracking-wide flex items-center gap-1.5">
           Séries Turcas NV
         </h1>
         <p class="text-[10px] text-gray-400 font-medium">Streaming Exclusivo & Direto</p>
@@ -96,33 +101,28 @@
     </button>
   </header>
 
-  <!-- Barra de Categorias Horizontal (5 Categorias Completas) -->
+  <!-- Barra de Categorias Horizontal -->
   <nav class="sticky top-[69px] z-30 bg-[#080A0E]/95 backdrop-blur-md px-3 py-2.5 border-b border-brand-border/60">
     <div id="categoryTabs" class="flex gap-2 overflow-x-auto hide-scrollbar text-xs font-semibold">
       
-      <!-- Categoria 1: Turcas -->
       <button onclick="filtrarCategoria('turcas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/30 flex items-center gap-1.5" data-cat="turcas">
         <span>🇹🇷</span> Novelas Turcas
       </button>
 
-      <!-- Categoria 2: Filmes Turcos (Gratuito) -->
       <button onclick="filtrarCategoria('filmes-turcos')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="filmes-turcos">
         <span>🎬</span> Filmes Turcos 
         <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black">GRÁTIS</span>
       </button>
 
-      <!-- Categoria 3: Romances de Livros (Gratuito) -->
       <button onclick="filtrarCategoria('romances-livros')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="romances-livros">
         <span>📚</span> Romances de Livros 
         <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black">GRÁTIS</span>
       </button>
 
-      <!-- Categoria 4: Doramas -->
       <button onclick="filtrarCategoria('doramas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="doramas">
         <span>🇰🇷</span> Doramas
       </button>
 
-      <!-- Categoria 5: Novelas Latinas -->
       <button onclick="filtrarCategoria('latinas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="latinas">
         <span>💃</span> Novelas Latinas
       </button>
@@ -154,16 +154,13 @@
 
   <!-- Grade de Conteúdos -->
   <main class="px-4">
-    <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-      <!-- Os cartões são gerados via JavaScript -->
-    </div>
+    <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
   </main>
 
   <!-- MODAL: Detalhes, Seletor Dublado/Legendado e Player -->
   <div id="titleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex-col justify-end">
     <div class="bg-brand-surface border-t border-brand-border rounded-t-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
       
-      <!-- Topo do Modal -->
       <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between">
         <div class="flex-1 pr-2">
           <h4 id="modalTitle" class="font-bold text-sm sm:text-base text-white truncate">Nome da Obra</h4>
@@ -174,7 +171,6 @@
         </button>
       </div>
 
-      <!-- Player de Vídeo Nativo HTML5 -->
       <div id="playerContainer" class="w-full bg-black relative flex items-center justify-center aspect-video border-b border-brand-border">
         <video id="streamPlayer" controls class="w-full h-full max-h-[35vh]" playsinline controlsList="nodownload">
           <source id="videoSource" src="" type="video/mp4">
@@ -187,7 +183,6 @@
         </div>
       </div>
 
-      <!-- Seletor de Áudio (Dublado / Legendado) -->
       <div id="audioSelectorContainer" class="p-2.5 border-b border-brand-border/80 bg-brand-dark/70 flex items-center justify-center gap-2">
         <button id="btnSelectDublado" onclick="alternarAudio('dublado')" class="px-4 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-brand-card text-gray-400 border border-brand-border">
           <span>🟡</span> Dublado
@@ -197,10 +192,7 @@
         </button>
       </div>
 
-      <!-- Lista de Episódios / Capítulos -->
-      <div class="p-3.5 overflow-y-auto hide-scrollbar flex-1 space-y-2" id="episodesList">
-        <!-- Injetado dinamicamente -->
-      </div>
+      <div class="p-3.5 overflow-y-auto hide-scrollbar flex-1 space-y-2" id="episodesList"></div>
     </div>
   </div>
 
@@ -230,18 +222,15 @@
   </div>
 
   <script>
-    // Inicialização do WebApp Telegram
+    const API_URL = "https://discussion-liberty-tired-conviction.trycloudflare.com/api/catalogo";
+
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.expand();
       tg.ready();
     }
 
-    // BASE DE DADOS DO CATÁLOGO
-    // Cada episódio com "is_vip: false" toca direto no player.
-    // Cada episódio com "is_vip: true" abre a janela de assinatura VIP.
-    const catalogo = [
-      // 1. NOVELAS TURCAS
+    let catalogo = [
       {
         id: "mais-linda-que-voce",
         titulo: "Mais Linda Que Você",
@@ -252,14 +241,9 @@
         temLegendado: true,
         episodios: {
           legendado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "http://localhost:8080/stream/1", is_vip: false },
-            { ep: 2, titulo: "Episódio 02", streamUrl: "http://localhost:8080/stream/2", is_vip: false },
-            { ep: 3, titulo: "Episódio 03", streamUrl: "http://localhost:8080/stream/3", is_vip: true }
+            { ep: 1, titulo: "Episódio 01", streamUrl: "https://discussion-liberty-tired-conviction.trycloudflare.com/stream/1", is_vip: false }
           ],
-          dublado: [
-            { ep: 1, titulo: "Episódio 01 (Dublado)", streamUrl: "http://localhost:8080/stream/4", is_vip: false },
-            { ep: 2, titulo: "Episódio 02 (Dublado)", streamUrl: "http://localhost:8080/stream/5", is_vip: true }
-          ]
+          dublado: []
         }
       },
       {
@@ -272,85 +256,9 @@
         temLegendado: true,
         episodios: {
           legendado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "http://localhost:8080/stream/6", is_vip: false },
-            { ep: 2, titulo: "Episódio 02", streamUrl: "http://localhost:8080/stream/7", is_vip: true }
+            { ep: 1, titulo: "Episódio 01", streamUrl: "https://discussion-liberty-tired-conviction.trycloudflare.com/stream/2", is_vip: false }
           ],
           dublado: []
-        }
-      },
-
-      // 2. FILMES TURCOS (GRATUITOS)
-      {
-        id: "taticas-do-amor",
-        titulo: "Táticas do Amor",
-        categoria: "filmes-turcos",
-        capa: "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=400&q=80",
-        descricao: "Uma blogueira e um publicitário apostam quem faz o outro se apaixonar primeiro.",
-        temDublado: true,
-        temLegendado: true,
-        episodios: {
-          legendado: [
-            { ep: 1, titulo: "Filme Completo (Legendado)", streamUrl: "http://localhost:8080/stream/8", is_vip: false }
-          ],
-          dublado: [
-            { ep: 1, titulo: "Filme Completo (Dublado)", streamUrl: "http://localhost:8080/stream/9", is_vip: false }
-          ]
-        }
-      },
-
-      // 3. ROMANCES DE LIVROS (GRATUITOS)
-      {
-        id: "orgulho-preconceito",
-        titulo: "Orgulho e Preconceito",
-        categoria: "romances-livros",
-        capa: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
-        descricao: "A aclamada adaptação do romance imortal de Jane Austen. Gratuito para a comunidade.",
-        temDublado: true,
-        temLegendado: true,
-        episodios: {
-          legendado: [
-            { ep: 1, titulo: "Filme Completo (Legendado)", streamUrl: "http://localhost:8080/stream/10", is_vip: false }
-          ],
-          dublado: [
-            { ep: 1, titulo: "Filme Completo (Dublado)", streamUrl: "http://localhost:8080/stream/11", is_vip: false }
-          ]
-        }
-      },
-
-      // 4. DORAMAS
-      {
-        id: "a-arte-de-sarah",
-        titulo: "A Arte de Sarah",
-        categoria: "doramas",
-        capa: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
-        descricao: "Uma restauradora de peças antigas reencontra segredos de seu primeiro amor.",
-        temDublado: false,
-        temLegendado: true,
-        episodios: {
-          legendado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "http://localhost:8080/stream/12", is_vip: false },
-            { ep: 2, titulo: "Episódio 02", streamUrl: "http://localhost:8080/stream/13", is_vip: true }
-          ],
-          dublado: []
-        }
-      },
-
-      // 5. NOVELAS LATINAS
-      {
-        id: "chiquititas",
-        titulo: "Chiquititas",
-        categoria: "latinas",
-        capa: "https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?auto=format&fit=crop&w=400&q=80",
-        descricao: "A trajetória das crianças no orfanato Raio de Luz. Disponibilizada completa e gratuita.",
-        temDublado: true,
-        temLegendado: false,
-        episodios: {
-          dublado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "http://localhost:8080/stream/14", is_vip: false },
-            { ep: 2, titulo: "Episódio 02", streamUrl: "http://localhost:8080/stream/15", is_vip: false },
-            { ep: 3, titulo: "Episódio 03", streamUrl: "http://localhost:8080/stream/16", is_vip: false }
-          ],
-          legendado: []
         }
       }
     ];
@@ -359,10 +267,58 @@
     let obraSelecionada = null;
     let audioAtivo = "legendado";
 
+    async function carregarDadosDaVPS() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (data.config) {
+          if (data.config.titulo_app) {
+            document.getElementById("appTitleText").innerText = data.config.titulo_app;
+          }
+          if (data.config.logo_url && data.config.logo_url.trim() !== "") {
+            document.getElementById("appLogoImg").src = data.config.logo_url;
+          }
+          if (data.config.cor_destaque) {
+            document.documentElement.style.setProperty('--brand-gold', data.config.cor_destaque);
+          }
+        }
+
+        if (data.series && data.series.length > 0) {
+          const seriesFormatadas = data.series.map(s => {
+            const epsFormatados = s.episodios.map((ep, idx) => ({
+              ep: ep.numero,
+              titulo: ep.titulo,
+              streamUrl: ep.url,
+              is_vip: idx >= 2
+            }));
+
+            return {
+              id: "serie-" + s.id,
+              titulo: s.titulo,
+              categoria: s.categoria || "turcas",
+              capa: s.capa || "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+              descricao: s.sinopse || "Sem descrição informada.",
+              temDublado: false,
+              temLegendado: true,
+              episodios: {
+                legendado: epsFormatados,
+                dublado: []
+              }
+            };
+          });
+
+          catalogo = seriesFormatadas;
+          filtrarCategoria(categoriaAtiva);
+        }
+      } catch (err) {
+        console.log("Mantendo catálogo local:", err);
+      }
+    }
+
     function filtrarCategoria(cat) {
       categoriaAtiva = cat;
 
-      // Estilo das abas ativas/inativas
       document.querySelectorAll(".tab-btn").forEach(btn => {
         if (btn.getAttribute("data-cat") === cat) {
           btn.className = "tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/30 flex items-center gap-1.5";
@@ -455,127 +411,4 @@
         audioContainer.classList.remove("hidden");
         btnDub.classList.add("hidden");
         btnLeg.classList.remove("hidden");
-        audioAtivo = "legendado";
-      }
-
-      atualizarBotoesAudio();
-      renderizarListaEpisodios();
-
-      const player = document.getElementById("streamPlayer");
-      player.pause();
-      document.getElementById("videoSource").src = "";
-      document.getElementById("playerNotice").classList.remove("hidden");
-
-      const modal = document.getElementById("titleModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
-
-    function fecharModal() {
-      const player = document.getElementById("streamPlayer");
-      player.pause();
-      document.getElementById("videoSource").src = "";
-      const modal = document.getElementById("titleModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function alternarAudio(tipo) {
-      audioAtivo = tipo;
-      atualizarBotoesAudio();
-      renderizarListaEpisodios();
-    }
-
-    function atualizarBotoesAudio() {
-      const btnDub = document.getElementById("btnSelectDublado");
-      const btnLeg = document.getElementById("btnSelectLegendado");
-
-      if (audioAtivo === "dublado") {
-        btnDub.className = "px-4 py-1.5 rounded-full text-xs font-black transition flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20";
-        btnLeg.className = "px-4 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-brand-card text-gray-400 border border-brand-border";
-      } else {
-        btnLeg.className = "px-4 py-1.5 rounded-full text-xs font-black transition flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20";
-        btnDub.className = "px-4 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-brand-card text-gray-400 border border-brand-border";
-      }
-    }
-
-    function renderizarListaEpisodios() {
-      const container = document.getElementById("episodesList");
-      container.innerHTML = "";
-
-      const eps = obraSelecionada.episodios[audioAtivo] || [];
-
-      if (eps.length === 0) {
-        container.innerHTML = `
-          <div class="py-6 text-center text-gray-500 text-xs">
-            Nenhum episódio cadastrado para este formato de áudio.
-          </div>
-        `;
-        return;
-      }
-
-      eps.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "p-3 rounded-xl bg-brand-card border border-brand-border flex items-center justify-between hover:bg-gray-800/60 transition cursor-pointer active:scale-[0.98]";
-        row.onclick = () => tocarEpisodio(item);
-
-        const badge = item.is_vip 
-          ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> VIP</span>`
-          : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1"><i class="fa-solid fa-play text-[9px]"></i> GRÁTIS</span>`;
-
-        row.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-gold font-bold text-xs">
-              ${item.ep}
-            </div>
-            <div>
-              <p class="text-xs font-bold text-white">${item.titulo}</p>
-              <p class="text-[10px] text-gray-400">Toque para reproduzir</p>
-            </div>
-          </div>
-          <div>
-            ${badge}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function tocarEpisodio(item) {
-      if (item.is_vip) {
-        document.getElementById("vipNoticeModal").classList.remove("hidden");
-        document.getElementById("vipNoticeModal").classList.add("flex");
-        return;
-      }
-
-      const playerNotice = document.getElementById("playerNotice");
-      const player = document.getElementById("streamPlayer");
-      const source = document.getElementById("videoSource");
-
-      playerNotice.classList.add("hidden");
-      source.src = item.streamUrl;
-      player.load();
-      player.play().catch(e => {
-        console.log("Autoplay retido pelo navegador, aguardando clique manual.");
-      });
-    }
-
-    function fecharVipNotice() {
-      const modal = document.getElementById("vipNoticeModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function abrirSuporteVIP() {
-      if (tg) {
-        tg.openTelegramLink("https://t.me/GseriesturcasNV_bot");
-      } else {
-        window.open("https://t.me/GseriesturcasNV_bot", "_blank");
-      }
-    }
-
-    // Inicialização da tela na categoria padrão
-    filtrarCategoria("turcas");
-  </script>
-</body>
-</html>
+        audio
