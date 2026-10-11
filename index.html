@@ -63,7 +63,7 @@
       <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
     </div>
 
-    <!-- Cards (Tamanho Ajustado e Proporcional) -->
+    <!-- Cards Compactos e Proporcionais -->
     <main class="px-4">
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"></div>
     </main>
@@ -77,15 +77,20 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
+      <!-- Player de Vídeo sem botões cobrindo -->
       <div class="w-full bg-black aspect-video flex items-center justify-center relative">
-        <video id="player" controls playsinline webkit-playsinline class="w-full h-full max-h-[35vh]" controlsList="nodownload">
+        <video 
+          id="player" 
+          controls 
+          playsinline 
+          webkit-playsinline 
+          x5-playsinline 
+          allowfullscreen 
+          class="w-full h-full max-h-[35vh]" 
+          controlsList="nodownload">
           <source id="playerSrc" src="" type="video/mp4">
         </video>
-        <!-- Botão Tela Cheia -->
-        <button id="btnTelaCheia" onclick="ativarTelaCheia()" class="hidden absolute top-3 right-3 bg-black/80 hover:bg-black text-amber-400 border border-amber-500/40 px-3 py-1.5 rounded-lg text-xs font-bold items-center gap-1.5 shadow-lg z-20 active:scale-95 transition">
-          <i class="fa-solid fa-expand"></i> Tela Cheia
-        </button>
-        <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3">
+        <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 pointer-events-none">
           <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2"></i>
           <p class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
         </div>
@@ -101,7 +106,11 @@
     const API_URL = "https://sufficient-anybody-oil-cycles.trycloudflare.com/api/catalogo?t=" + Date.now();
 
     const tg = window.Telegram?.WebApp;
-    if (tg) { tg.expand(); tg.ready(); }
+    if (tg) { 
+      tg.expand(); 
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      tg.ready(); 
+    }
 
     let dadosCompletos = [];
     let catAtual = "turcas";
@@ -194,7 +203,6 @@
       v.pause();
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
-      document.getElementById("btnTelaCheia").classList.add("hidden");
 
       const lista = document.getElementById("mEpsList");
       lista.innerHTML = "";
@@ -208,8 +216,6 @@
           item.className = "p-2.5 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-between cursor-pointer active:scale-98";
           item.onclick = () => {
             document.getElementById("avisoPlay").classList.add("hidden");
-            document.getElementById("btnTelaCheia").classList.remove("hidden");
-            document.getElementById("btnTelaCheia").classList.add("flex");
             document.getElementById("playerSrc").src = ep.url;
             v.load();
             v.play();
@@ -234,24 +240,9 @@
       const v = document.getElementById("player");
       v.pause();
       document.getElementById("playerSrc").src = "";
-      document.getElementById("btnTelaCheia").classList.add("hidden");
       const m = document.getElementById("modalPlayer");
       m.classList.add("hidden");
       m.classList.remove("flex");
-    }
-
-    function ativarTelaCheia() {
-      const v = document.getElementById("player");
-      if (!v) return;
-      if (v.requestFullscreen) {
-        v.requestFullscreen();
-      } else if (v.webkitRequestFullscreen) {
-        v.webkitRequestFullscreen();
-      } else if (v.webkitEnterFullscreen) {
-        v.webkitEnterFullscreen();
-      } else if (v.msRequestFullscreen) {
-        v.msRequestFullscreen();
-      }
     }
 
     function abrirVip() {
