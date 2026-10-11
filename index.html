@@ -14,7 +14,12 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
     
-    /* Modo Tela Cheia Total (Garante 100% de funcionamento dentro do Telegram) */
+    /* Esconder o botão cinza nativo inativo no Telegram */
+    video::-webkit-media-controls-fullscreen-button {
+      display: none !important;
+    }
+
+    /* Modo Cinema / Tela Cheia Real no Telegram */
     .video-fullscreen-mode {
       position: fixed !important;
       inset: 0 !important;
@@ -24,6 +29,7 @@
       z-index: 99999 !important;
       background-color: #000 !important;
       display: flex !important;
+      flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
     }
@@ -32,6 +38,16 @@
       height: 100% !important;
       max-height: 100% !important;
       object-fit: contain !important;
+    }
+
+    /* Overlay estilo Netflix do título do episódio */
+    .overlay-netflix {
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .overlay-netflix.oculto {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -121,7 +137,7 @@
       </div>
 
       <!-- Container do Vídeo -->
-      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative">
+      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="mostrarInfoNetflix()">
         <video 
           id="player" 
           controls 
@@ -133,8 +149,19 @@
           <source id="playerSrc" src="" type="video/mp4">
         </video>
 
-        <!-- Botão de Sair do Modo Tela Cheia (aparece apenas quando estiver expandido) -->
-        <button id="btnSairFullscreen" onclick="alternarTelaCheia()" class="hidden absolute top-4 right-4 bg-black/80 text-white border border-gray-700 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-lg">
+        <!-- Overlay Estilo Netflix com Identificação do Episódio no Topo da Tela -->
+        <div id="overlayEpisodio" class="overlay-netflix oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
+          <div class="flex flex-col">
+            <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
+            <span id="overlayEpNome" class="text-xs sm:text-sm font-bold text-white drop-shadow"></span>
+          </div>
+          <span class="text-[10px] bg-black/60 border border-gray-700/80 text-gray-300 px-2 py-0.5 rounded-full backdrop-blur">
+            HD
+          </span>
+        </div>
+
+        <!-- Botão Sair da Tela Cheia (aparece no modo cinema) -->
+        <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="hidden absolute top-4 right-4 bg-black/80 text-white border border-gray-700 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-lg">
           <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
         </button>
 
@@ -144,12 +171,23 @@
         </div>
       </div>
 
-      <!-- Barra de Controle Rápido abaixo do player -->
-      <div class="px-3 py-2 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
-        <span class="text-[11px] text-gray-400" id="infoEpAtual">Selecione o episódio</span>
-        <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-md flex items-center gap-1.5 active:scale-95 transition">
-          <i class="fa-solid fa-expand"></i> Expandir Tela
-        </button>
+      <!-- Barra Estilo Netflix: Controles de Pular Episódio + Expandir Tela -->
+      <div class="px-3 py-2 bg-[#161a29] border-b border-gray-800 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5">
+          <button id="btnEpAnterior" onclick="mudarEpisodio(-1)" disabled class="px-2.5 py-1 rounded bg-gray-800 text-gray-400 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
+            <i class="fa-solid fa-backward-step"></i> Anterior
+          </button>
+          <button id="btnEpProximo" onclick="mudarEpisodio(1)" disabled class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
+            Próximo <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-gray-300 font-medium truncate max-w-[130px] sm:max-w-xs" id="infoEpAtual">Selecione o episódio</span>
+          <!-- Botão Expandir Tela Mantido -->
+          <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded flex items-center gap-1.5 active:scale-95 transition shadow-sm">
+            <i class="fa-solid fa-expand"></i> Expandir Tela
+          </button>
+        </div>
       </div>
 
       <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
@@ -173,7 +211,40 @@
     let catAtual = "turcas";
     let termoBusca = "";
     let serieAberta = null;
+    let indiceEpAtual = -1;
     let isFullscreen = false;
+    let timeoutOverlay = null;
+
+    const videoEl = document.getElementById("player");
+
+    // Passagem Automática de Episódio ao terminar
+    videoEl.addEventListener("ended", () => {
+      if (serieAberta && serieAberta.episodios && indiceEpAtual < serieAberta.episodios.length - 1) {
+        mudarEpisodio(1);
+      }
+    });
+
+    // Eventos do player para mostrar a identificação estilo Netflix
+    videoEl.addEventListener("play", () => {
+      mostrarInfoNetflix();
+    });
+    videoEl.addEventListener("pause", () => {
+      mostrarInfoNetflix(true); // mantem na tela enquanto pausado
+    });
+
+    function mostrarInfoNetflix(manterFixo = false) {
+      if (indiceEpAtual === -1) return;
+      const overlay = document.getElementById("overlayEpisodio");
+      overlay.classList.remove("oculto");
+
+      if (timeoutOverlay) clearTimeout(timeoutOverlay);
+
+      if (!manterFixo && !videoEl.paused) {
+        timeoutOverlay = setTimeout(() => {
+          overlay.classList.add("oculto");
+        }, 3500); // Some após 3.5 segundos de reprodução
+      }
+    }
 
     async function buscarCatalogo() {
       try {
@@ -287,54 +358,111 @@
 
     function abrirModal(s) {
       serieAberta = s;
+      indiceEpAtual = -1;
       document.getElementById("mTitulo").innerText = s.titulo;
       document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
       document.getElementById("infoEpAtual").innerText = "Selecione o episódio";
       
-      const v = document.getElementById("player");
-      v.pause();
+      document.getElementById("overlaySerieNome").innerText = s.titulo;
+      document.getElementById("overlayEpNome").innerText = "";
+      document.getElementById("overlayEpisodio").classList.add("oculto");
+
+      videoEl.pause();
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
 
+      atualizarBotoesNavegacao();
+
       if (isFullscreen) alternarTelaCheia();
 
-      const lista = document.getElementById("mEpsList");
-      lista.innerHTML = "";
-
-      const eps = s.episodios || [];
-      if (eps.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado ainda.</p>";
-      } else {
-        eps.forEach(ep => {
-          const item = document.createElement("div");
-          item.className = "p-2.5 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-between cursor-pointer active:scale-98";
-          item.onclick = () => {
-            document.getElementById("avisoPlay").classList.add("hidden");
-            document.getElementById("playerSrc").src = ep.url;
-            document.getElementById("infoEpAtual").innerText = ep.titulo || `Episódio ${ep.numero}`;
-            v.load();
-            v.play();
-          };
-          item.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center">${ep.numero || 1}</span>
-              <span class="text-xs font-bold text-white">${ep.titulo || 'Episódio ' + ep.numero}</span>
-            </div>
-            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ASSISTIR</span>
-          `;
-          lista.appendChild(item);
-        });
-      }
+      renderizarListaEpisodios();
 
       const m = document.getElementById("modalPlayer");
       m.classList.remove("hidden");
       m.classList.add("flex");
     }
 
+    function renderizarListaEpisodios() {
+      const lista = document.getElementById("mEpsList");
+      lista.innerHTML = "";
+
+      const eps = serieAberta?.episodios || [];
+      if (eps.length === 0) {
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado ainda.</p>";
+      } else {
+        eps.forEach((ep, index) => {
+          const isAtivo = (index === indiceEpAtual);
+          const item = document.createElement("div");
+          item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition ${
+            isAtivo ? 'bg-amber-500/20 border-amber-500/60' : 'bg-gray-800/80 border-gray-700'
+          }`;
+          item.onclick = () => tocarEpisodio(index);
+          item.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded ${isAtivo ? 'bg-amber-500 text-black font-extrabold' : 'bg-amber-500/20 text-amber-400 font-bold'} text-xs flex items-center justify-center">${ep.numero || (index + 1)}</span>
+              <span class="text-xs font-bold text-white">${ep.titulo || 'Episódio ' + (ep.numero || (index + 1))}</span>
+            </div>
+            <span class="text-[10px] font-bold ${isAtivo ? 'text-amber-400' : 'text-emerald-400 bg-emerald-500/10'} px-2 py-0.5 rounded border ${isAtivo ? 'border-amber-400/40' : 'border-emerald-500/20'}">
+              ${isAtivo ? 'TOCANDO AGORA' : 'ASSISTIR'}
+            </span>
+          `;
+          lista.appendChild(item);
+        });
+      }
+    }
+
+    function tocarEpisodio(index) {
+      if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
+      
+      indiceEpAtual = index;
+      const ep = serieAberta.episodios[index];
+      const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
+
+      document.getElementById("avisoPlay").classList.add("hidden");
+      document.getElementById("playerSrc").src = ep.url;
+      document.getElementById("infoEpAtual").innerText = epTexto;
+
+      // Atualiza o overlay estilo Netflix na tela do player
+      document.getElementById("overlaySerieNome").innerText = serieAberta.titulo;
+      document.getElementById("overlayEpNome").innerText = epTexto;
+      mostrarInfoNetflix();
+      
+      videoEl.load();
+      videoEl.play();
+
+      atualizarBotoesNavegacao();
+      renderizarListaEpisodios();
+    }
+
+    function mudarEpisodio(direcao) {
+      if (!serieAberta || !serieAberta.episodios) return;
+      const novoIndice = indiceEpAtual + direcao;
+      if (novoIndice >= 0 && novoIndice < serieAberta.episodios.length) {
+        tocarEpisodio(novoIndice);
+      }
+    }
+
+    function atualizarBotoesNavegacao() {
+      const btnAnt = document.getElementById("btnEpAnterior");
+      const btnProx = document.getElementById("btnEpProximo");
+      const total = serieAberta?.episodios?.length || 0;
+
+      if (indiceEpAtual <= 0) {
+        btnAnt.disabled = true;
+      } else {
+        btnAnt.disabled = false;
+      }
+
+      if (indiceEpAtual === -1 || indiceEpAtual >= total - 1) {
+        btnProx.disabled = true;
+      } else {
+        btnProx.disabled = false;
+      }
+    }
+
     function fecharModal() {
       if (isFullscreen) alternarTelaCheia();
-      const v = document.getElementById("player");
-      v.pause();
+      videoEl.pause();
       document.getElementById("playerSrc").src = "";
       const m = document.getElementById("modalPlayer");
       m.classList.add("hidden");
@@ -344,19 +472,16 @@
     function alternarTelaCheia() {
       const container = document.getElementById("videoContainer");
       const btnSair = document.getElementById("btnSairFullscreen");
-      const video = document.getElementById("player");
 
       isFullscreen = !isFullscreen;
 
       if (isFullscreen) {
-        // Tenta acionar a API nativa do navegador
-        if (video.requestFullscreen) {
-          video.requestFullscreen().catch(() => {});
-        } else if (video.webkitEnterFullscreen) {
-          video.webkitEnterFullscreen();
+        if (videoEl.requestFullscreen) {
+          videoEl.requestFullscreen().catch(() => {});
+        } else if (videoEl.webkitEnterFullscreen) {
+          videoEl.webkitEnterFullscreen();
         }
 
-        // Garante a expansão via CSS de alta prioridade (modo cinema contínuo)
         container.classList.add("video-fullscreen-mode");
         btnSair.classList.remove("hidden");
         btnSair.classList.add("flex");
@@ -368,6 +493,7 @@
         btnSair.classList.add("hidden");
         btnSair.classList.remove("flex");
       }
+      mostrarInfoNetflix();
     }
 
     function abrirVip() {
