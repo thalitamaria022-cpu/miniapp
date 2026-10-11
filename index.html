@@ -33,6 +33,23 @@
     </div>
   </header>
 
+  <!-- Campo de Pesquisa com Lupa -->
+  <div class="bg-[#0b0d14] px-4 pt-3 pb-1 border-b border-gray-800/40">
+    <div class="app-container">
+      <div class="relative flex items-center">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-gray-400 text-xs"></i>
+        <input 
+          type="text" 
+          id="campoBusca" 
+          oninput="filtrarPorPesquisa()" 
+          placeholder="Pesquisar série, dorama ou novela..." 
+          class="w-full bg-[#141724] border border-gray-800 rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition"
+        >
+        <button id="btnLimparBusca" onclick="limparBusca()" class="hidden absolute right-3 text-gray-400 hover:text-white text-xs">✕</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Categorias -->
   <nav class="sticky top-[61px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
     <div class="app-container flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
@@ -45,12 +62,18 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner -->
-    <section class="p-4">
+    <!-- Banner com o Novo Texto Oficial -->
+    <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
-        <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-sparkles"></i> Catálogo Atualizado</p>
-        <h2 class="text-sm sm:text-base font-bold text-white">Escolha e assista sem download</h2>
-        <p class="text-[11px] text-gray-400 mt-0.5">Toque no card para ver a sinopse e episódios.</p>
+        <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <span>📚</span> CATÁLOGO ATUALIZADO! ✨
+        </p>
+        <p class="text-xs text-gray-300 leading-relaxed mt-1">
+          Aqui você encontra um universo de histórias para se apaixonar! ❤️ Séries turcas dubladas e legendadas, doramas e novelas latinas, com muito romance, mistério, drama, ação e grandes emoções. 🍿💖
+        </p>
+        <p class="text-[11px] font-bold text-amber-300/90 mt-2">
+          Escolha sua próxima história e apaixone-se! 🌹
+        </p>
       </div>
     </section>
 
@@ -63,7 +86,7 @@
       <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
     </div>
 
-    <!-- Cards Compactos e Proporcionais -->
+    <!-- Cards (Tamanho Proporcional de Cinema) -->
     <main class="px-4">
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"></div>
     </main>
@@ -114,6 +137,7 @@
 
     let dadosCompletos = [];
     let catAtual = "turcas";
+    let termoBusca = "";
     let serieAberta = null;
 
     async function buscarCatalogo() {
@@ -145,6 +169,10 @@
 
     function selecionarCat(c) {
       catAtual = c;
+      termoBusca = "";
+      document.getElementById("campoBusca").value = "";
+      document.getElementById("btnLimparBusca").classList.add("hidden");
+      
       document.querySelectorAll(".cat-btn").forEach(btn => {
         if (btn.getAttribute("data-c") === c) {
           btn.className = "cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow font-bold";
@@ -152,6 +180,24 @@
           btn.className = "cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300 font-bold";
         }
       });
+      renderizar();
+    }
+
+    function filtrarPorPesquisa() {
+      termoBusca = document.getElementById("campoBusca").value.trim().toLowerCase();
+      const btnLimpar = document.getElementById("btnLimparBusca");
+      if (termoBusca.length > 0) {
+        btnLimpar.classList.remove("hidden");
+      } else {
+        btnLimpar.classList.add("hidden");
+      }
+      renderizar();
+    }
+
+    function limparBusca() {
+      document.getElementById("campoBusca").value = "";
+      termoBusca = "";
+      document.getElementById("btnLimparBusca").classList.add("hidden");
       renderizar();
     }
 
@@ -163,16 +209,26 @@
         "doramas": "Doramas Coreanos & Asiáticos",
         "latinas": "Novelas Latinas"
       };
-      document.getElementById("catTitle").innerText = nomes[catAtual] || "Catálogo";
 
-      const filtrados = dadosCompletos.filter(s => normalizarCat(s.categoria) === catAtual);
+      let filtrados = [];
+      if (termoBusca.length > 0) {
+        document.getElementById("catTitle").innerText = `Resultado da Busca: "${termoBusca}"`;
+        filtrados = dadosCompletos.filter(s => 
+          (s.titulo && s.titulo.toLowerCase().includes(termoBusca)) ||
+          (s.sinopse && s.sinopse.toLowerCase().includes(termoBusca))
+        );
+      } else {
+        document.getElementById("catTitle").innerText = nomes[catAtual] || "Catálogo";
+        filtrados = dadosCompletos.filter(s => normalizarCat(s.categoria) === catAtual);
+      }
+
       document.getElementById("catCount").innerText = `${filtrados.length} títulos`;
 
       const grid = document.getElementById("gridSeries");
       grid.innerHTML = "";
 
       if (filtrados.length === 0) {
-        grid.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xs py-10'>Nenhum título cadastrado nesta categoria ainda.</p>";
+        grid.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xs py-10'>Nenhum título encontrado.</p>";
         return;
       }
 
