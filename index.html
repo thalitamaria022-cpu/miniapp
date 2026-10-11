@@ -14,12 +14,12 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
     
-    /* Esconder o botão cinza nativo inativo no Telegram */
+    /* Esconder o botão cinzento nativo inativo no Telegram */
     video::-webkit-media-controls-fullscreen-button {
       display: none !important;
     }
 
-    /* Modo Cinema / Tela Cheia Real no Telegram */
+    /* Modo Cinema / Ecrã Inteiro Real no Telegram */
     .video-fullscreen-mode {
       position: fixed !important;
       inset: 0 !important;
@@ -40,7 +40,7 @@
       object-fit: contain !important;
     }
 
-    /* Animação suave para sumir e reaparecer os controles */
+    /* Animação suave para sumir e reaparecer os controlos */
     .controles-imersivos {
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
@@ -55,7 +55,7 @@
 
   <!-- Topo -->
   <header class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 py-3 shadow-md">
-    <div class="app-container flex items-center justify-between">
+    <div class="app-container flex items-center justify-between pr-12">
       <div class="flex items-center gap-3">
         <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
         <div>
@@ -63,7 +63,7 @@
           <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
         </div>
       </div>
-      <button onclick="abrirVip()" class="px-3.5 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1.5 shadow active:scale-95 transition">
+      <button onclick="abrirVip()" class="px-3 py-1 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow active:scale-95 transition">
         <i class="fa-solid fa-crown text-[10px]"></i> VIP
       </button>
     </div>
@@ -98,14 +98,14 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner Oficial -->
+    <!-- Banner Oficial Atualizado -->
     <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
         <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
           <span>📚</span> CATÁLOGO ATUALIZADO! ✨
         </p>
         <p class="text-xs text-gray-300 leading-relaxed mt-1">
-          Aqui você encontra um universo de histórias para se apaixonar! Séries turcas dubladas e legendadas, doramas e novelas latinas, com muito romance, mistério, drama, ação e grandes emoções. 
+          Aqui você encontra um universo de histórias para se apaixonar! Séries turcas dubladas e legendadas, doramas e novelas latinas, com muito romance, mistério, drama, ação e grandes emoções.
         </p>
         <p class="text-[11px] font-bold text-amber-300/90 mt-2">
           Escolha sua próxima história e apaixone-se! 💘
@@ -113,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Contador e Titulo -->
+    <!-- Contador e Título -->
     <div class="px-4 flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
         <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
@@ -136,7 +136,7 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
-      <!-- Container do Vídeo -->
+      <!-- Contentor do Vídeo -->
       <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()">
         <video 
           id="player" 
@@ -160,7 +160,7 @@
           </span>
         </div>
 
-        <!-- Botão Sair da Tela Cheia posicionado no topo esquerdo para nunca cobrir logos de canais (Some sozinho e volta ao tocar) -->
+        <!-- Botão Sair da Tela Cheia posicionado no topo esquerdo -->
         <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
           <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
         </button>
@@ -204,6 +204,13 @@
       if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
       if (tg.requestFullscreen) tg.requestFullscreen();
       tg.ready(); 
+
+      // Botão Voltar nativo do Telegram
+      if (tg.BackButton) {
+        tg.BackButton.onClick(() => {
+          gerenciarRetorno();
+        });
+      }
     }
 
     let dadosCompletos = [];
@@ -215,6 +222,14 @@
     let timerOcultarControles = null;
 
     const videoEl = document.getElementById("player");
+
+    function gerenciarRetorno() {
+      if (isFullscreen) {
+        alternarTelaCheia();
+      } else {
+        fecharModal();
+      }
+    }
 
     // Passagem Automática de Episódio ao terminar
     videoEl.addEventListener("ended", () => {
@@ -255,7 +270,7 @@
           if (isFullscreen) {
             btnSair.classList.add("oculto");
           }
-        }, 3000); // Some completamente após 3 segundos sem tocar
+        }, 3000);
       }
     }
 
@@ -405,6 +420,10 @@
       const m = document.getElementById("modalPlayer");
       m.classList.remove("hidden");
       m.classList.add("flex");
+
+      if (tg?.BackButton) {
+        tg.BackButton.show();
+      }
     }
 
     function renderizarListaEpisodios() {
@@ -492,6 +511,10 @@
       const m = document.getElementById("modalPlayer");
       m.classList.add("hidden");
       m.classList.remove("flex");
+
+      if (tg?.BackButton) {
+        tg.BackButton.hide();
+      }
     }
 
     function alternarTelaCheia() {
