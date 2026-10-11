@@ -13,6 +13,26 @@
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
+    
+    /* Modo Tela Cheia Total (Garante 100% de funcionamento dentro do Telegram) */
+    .video-fullscreen-mode {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      z-index: 99999 !important;
+      background-color: #000 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .video-fullscreen-mode video {
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      object-fit: contain !important;
+    }
   </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -62,7 +82,7 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner com o Novo Texto Oficial -->
+    <!-- Banner Oficial -->
     <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
         <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -86,7 +106,7 @@
       <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
     </div>
 
-    <!-- Cards (Tamanho Proporcional de Cinema) -->
+    <!-- Cards -->
     <main class="px-4">
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"></div>
     </main>
@@ -100,23 +120,36 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
-      <!-- Player de Vídeo sem botões cobrindo -->
-      <div class="w-full bg-black aspect-video flex items-center justify-center relative">
+      <!-- Container do Vídeo -->
+      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative">
         <video 
           id="player" 
           controls 
           playsinline 
           webkit-playsinline 
           x5-playsinline 
-          allowfullscreen 
           class="w-full h-full max-h-[35vh]" 
           controlsList="nodownload">
           <source id="playerSrc" src="" type="video/mp4">
         </video>
+
+        <!-- Botão de Sair do Modo Tela Cheia (aparece apenas quando estiver expandido) -->
+        <button id="btnSairFullscreen" onclick="alternarTelaCheia()" class="hidden absolute top-4 right-4 bg-black/80 text-white border border-gray-700 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-lg">
+          <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
+        </button>
+
         <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 pointer-events-none">
           <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2"></i>
           <p class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
         </div>
+      </div>
+
+      <!-- Barra de Controle Rápido abaixo do player -->
+      <div class="px-3 py-2 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
+        <span class="text-[11px] text-gray-400" id="infoEpAtual">Selecione o episódio</span>
+        <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-md flex items-center gap-1.5 active:scale-95 transition">
+          <i class="fa-solid fa-expand"></i> Expandir Tela
+        </button>
       </div>
 
       <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
@@ -132,6 +165,7 @@
     if (tg) { 
       tg.expand(); 
       if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      if (tg.requestFullscreen) tg.requestFullscreen();
       tg.ready(); 
     }
 
@@ -139,6 +173,7 @@
     let catAtual = "turcas";
     let termoBusca = "";
     let serieAberta = null;
+    let isFullscreen = false;
 
     async function buscarCatalogo() {
       try {
@@ -254,11 +289,14 @@
       serieAberta = s;
       document.getElementById("mTitulo").innerText = s.titulo;
       document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
+      document.getElementById("infoEpAtual").innerText = "Selecione o episódio";
       
       const v = document.getElementById("player");
       v.pause();
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
+
+      if (isFullscreen) alternarTelaCheia();
 
       const lista = document.getElementById("mEpsList");
       lista.innerHTML = "";
@@ -273,6 +311,7 @@
           item.onclick = () => {
             document.getElementById("avisoPlay").classList.add("hidden");
             document.getElementById("playerSrc").src = ep.url;
+            document.getElementById("infoEpAtual").innerText = ep.titulo || `Episódio ${ep.numero}`;
             v.load();
             v.play();
           };
@@ -293,12 +332,42 @@
     }
 
     function fecharModal() {
+      if (isFullscreen) alternarTelaCheia();
       const v = document.getElementById("player");
       v.pause();
       document.getElementById("playerSrc").src = "";
       const m = document.getElementById("modalPlayer");
       m.classList.add("hidden");
       m.classList.remove("flex");
+    }
+
+    function alternarTelaCheia() {
+      const container = document.getElementById("videoContainer");
+      const btnSair = document.getElementById("btnSairFullscreen");
+      const video = document.getElementById("player");
+
+      isFullscreen = !isFullscreen;
+
+      if (isFullscreen) {
+        // Tenta acionar a API nativa do navegador
+        if (video.requestFullscreen) {
+          video.requestFullscreen().catch(() => {});
+        } else if (video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+        }
+
+        // Garante a expansão via CSS de alta prioridade (modo cinema contínuo)
+        container.classList.add("video-fullscreen-mode");
+        btnSair.classList.remove("hidden");
+        btnSair.classList.add("flex");
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+        container.classList.remove("video-fullscreen-mode");
+        btnSair.classList.add("hidden");
+        btnSair.classList.remove("flex");
+      }
     }
 
     function abrirVip() {
