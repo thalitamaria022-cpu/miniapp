@@ -1,414 +1,234 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Séries Turcas NV - Mini App Streaming</title>
-
-  <!-- Telegram Web App SDK -->
+  <title>Séries Turcas NV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              gold: 'var(--brand-gold, #E5C07B)',
-              goldLight: '#F3D69B',
-              goldDark: '#B8860B',
-              dark: '#080A0E',
-              surface: '#11151F',
-              card: '#161B26',
-              border: '#242C3D'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    :root {
-      --brand-gold: #E5C07B;
-    }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    body {
-      background-color: #080A0E;
-      color: #E2E8F0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
-    .card-tap-effect {
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .card-tap-effect:active {
-      transform: scale(0.97);
-    }
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #F9E79F, var(--brand-gold, #D4AF37), #AA7C11);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .dynamic-bg-gold {
-      background-color: var(--brand-gold, #E5C07B) !important;
-    }
+    :root { --brand-cor: #f59e0b; }
+    body { background-color: #0b0d14; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-20">
 
-  <!-- Top Bar / Cabeçalho com Logotipo Oficial -->
-  <header class="sticky top-0 z-40 bg-[#0B0F17]/95 backdrop-blur-md border-b border-brand-border px-4 py-3 flex items-center justify-between shadow-lg shadow-black/40">
+  <!-- Topo -->
+  <header class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 py-3 flex items-center justify-between shadow-md">
     <div class="flex items-center gap-3">
-      <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-brand-gold/60 shadow-md shadow-brand-gold/20 flex-shrink-0 bg-brand-surface flex items-center justify-center">
-        <img 
-          id="appLogoImg"
-          src="logo.jpg" 
-          alt="Séries Turcas NV" 
-          class="w-full h-full object-cover"
-          onerror="this.onerror=null; this.src='https://placehold.co/100x100/11151F/E5C07B?text=NV';"
-        >
-      </div>
-
-      <div class="flex flex-col">
-        <h1 id="appTitleText" class="font-extrabold text-sm sm:text-base leading-tight gold-gradient-text tracking-wide flex items-center gap-1.5">
-          Séries Turcas NV
-        </h1>
-        <p class="text-[10px] text-gray-400 font-medium">Streaming Exclusivo & Direto</p>
+      <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
+      <div>
+        <h1 id="appTitulo" class="font-extrabold text-sm text-amber-400">Séries Turcas NV</h1>
+        <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
       </div>
     </div>
-
-    <!-- Botão Seja VIP Superior -->
-    <button onclick="abrirSuporteVIP()" class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/25 flex items-center gap-1.5 active:scale-95 transition">
-      <i class="fa-solid fa-crown text-[11px]"></i>
-      <span>VIP</span>
+    <button onclick="abrirVip()" class="px-3 py-1 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow">
+      <i class="fa-solid fa-crown text-[10px]"></i> VIP
     </button>
   </header>
 
-  <!-- Barra de Categorias Horizontal -->
-  <nav class="sticky top-[69px] z-30 bg-[#080A0E]/95 backdrop-blur-md px-3 py-2.5 border-b border-brand-border/60">
-    <div id="categoryTabs" class="flex gap-2 overflow-x-auto hide-scrollbar text-xs font-semibold">
-      
-      <button onclick="filtrarCategoria('turcas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/30 flex items-center gap-1.5" data-cat="turcas">
-        <span>🇹🇷</span> Novelas Turcas
-      </button>
-
-      <button onclick="filtrarCategoria('filmes-turcos')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="filmes-turcos">
-        <span>🎬</span> Filmes Turcos 
-        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black">GRÁTIS</span>
-      </button>
-
-      <button onclick="filtrarCategoria('romances-livros')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="romances-livros">
-        <span>📚</span> Romances de Livros 
-        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black">GRÁTIS</span>
-      </button>
-
-      <button onclick="filtrarCategoria('doramas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="doramas">
-        <span>🇰🇷</span> Doramas
-      </button>
-
-      <button onclick="filtrarCategoria('latinas')" class="tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5" data-cat="latinas">
-        <span>💃</span> Novelas Latinas
-      </button>
+  <!-- Categorias -->
+  <nav class="sticky top-[61px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
+    <div class="flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
+      <button onclick="selecionarCat('turcas')" data-c="turcas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow">🇹🇷 Novelas Turcas</button>
+      <button onclick="selecionarCat('filmes-turcos')" data-c="filmes-turcos" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🎬 Filmes Turcos <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
+      <button onclick="selecionarCat('romances-livros')" data-c="romances-livros" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">📚 Romances de Livros <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
+      <button onclick="selecionarCat('doramas')" data-c="doramas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🇰🇷 Doramas</button>
+      <button onclick="selecionarCat('latinas')" data-c="latinas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">💃 Novelas Latinas</button>
     </div>
   </nav>
 
-  <!-- Banner Informativo -->
+  <!-- Banner -->
   <section class="p-4">
-    <div class="relative rounded-2xl overflow-hidden border border-brand-border bg-gradient-to-br from-brand-surface via-[#141A29] to-[#0A0D14] p-4 flex flex-col justify-end shadow-xl">
-      <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-      <span class="text-[10px] font-black uppercase tracking-wider text-brand-gold flex items-center gap-1 mb-1">
-        <i class="fa-solid fa-sparkles"></i> Catálogo Atualizado
-      </span>
-      <h2 class="text-base font-bold text-white leading-tight">Escolha e assista sem download</h2>
-      <p class="text-[11px] text-gray-400 mt-1">
-        Toque em qualquer card para ver a sinopse, alternar entre dublado ou legendado e reproduzir.
-      </p>
+    <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 to-gray-800 p-4">
+      <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-sparkles"></i> Catálogo Atualizado</p>
+      <h2 class="text-sm font-bold text-white">Escolha e assista sem download</h2>
+      <p class="text-[11px] text-gray-400 mt-0.5">Toque no card para ver a sinopse e episódios.</p>
     </div>
   </section>
 
-  <!-- Cabeçalho da Seção Ativa -->
-  <section class="px-4 flex items-center justify-between mb-3">
-    <div class="flex items-center gap-2">
-      <div class="w-1.5 h-4 rounded-full bg-brand-gold"></div>
-      <h3 id="currentCatTitle" class="text-xs font-black tracking-wider uppercase text-gray-200">Novelas Turcas</h3>
-    </div>
-    <span id="itemsCounter" class="text-[11px] font-semibold text-gray-400">0 títulos</span>
-  </section>
-
-  <!-- Grade de Conteúdos -->
-  <main class="px-4">
-    <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-  </main>
-
-  <!-- MODAL: Detalhes, Seletor Dublado/Legendado e Player -->
-  <div id="titleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex-col justify-end">
-    <div class="bg-brand-surface border-t border-brand-border rounded-t-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
-      
-      <div class="px-4 py-3 border-b border-brand-border flex items-center justify-between">
-        <div class="flex-1 pr-2">
-          <h4 id="modalTitle" class="font-bold text-sm sm:text-base text-white truncate">Nome da Obra</h4>
-          <p id="modalCategory" class="text-[10px] text-brand-gold font-bold uppercase tracking-wider">CATEGORIA</p>
-        </div>
-        <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-brand-card border border-brand-border text-gray-300 flex items-center justify-center hover:bg-gray-800 active:scale-90 transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </div>
-
-      <div id="playerContainer" class="w-full bg-black relative flex items-center justify-center aspect-video border-b border-brand-border">
-        <video id="streamPlayer" controls class="w-full h-full max-h-[35vh]" playsinline controlsList="nodownload">
-          <source id="videoSource" src="" type="video/mp4">
-          Seu navegador não suporta streaming direto.
-        </video>
-        <div id="playerNotice" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center p-4 text-center">
-          <i class="fa-solid fa-circle-play text-4xl text-brand-gold mb-2 drop-shadow-md"></i>
-          <p class="text-xs font-bold text-gray-100">Selecione um episódio para dar play</p>
-          <p class="text-[10px] text-gray-400 mt-0.5">Transmissão em fluxo contínuo</p>
-        </div>
-      </div>
-
-      <div id="audioSelectorContainer" class="p-2.5 border-b border-brand-border/80 bg-brand-dark/70 flex items-center justify-center gap-2">
-        <button id="btnSelectDublado" onclick="alternarAudio('dublado')" class="px-4 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-brand-card text-gray-400 border border-brand-border">
-          <span>🟡</span> Dublado
-        </button>
-        <button id="btnSelectLegendado" onclick="alternarAudio('legendado')" class="px-4 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-md shadow-amber-500/20">
-          <span>🔵</span> Legendado
-        </button>
-      </div>
-
-      <div class="p-3.5 overflow-y-auto hide-scrollbar flex-1 space-y-2" id="episodesList"></div>
-    </div>
+  <!-- Contador e Titulo -->
+  <div class="px-4 flex items-center justify-between mb-3">
+    <h3 id="catTitle" class="text-xs font-bold uppercase text-gray-300 tracking-wider">Novelas Turcas</h3>
+    <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
   </div>
 
-  <!-- MODAL: Bloqueio VIP -->
-  <div id="vipNoticeModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-brand-surface border border-amber-500/40 rounded-3xl p-6 text-center max-w-sm w-full shadow-2xl relative overflow-hidden">
-      <div class="absolute -top-10 -right-10 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl"></div>
+  <!-- Cards -->
+  <main class="px-4">
+    <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+  </main>
 
-      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
-        <i class="fa-solid fa-lock"></i>
+  <!-- Modal Detalhes e Player -->
+  <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end">
+    <div class="bg-[#111420] border-t border-gray-800 rounded-t-2xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+        <h4 id="mTitulo" class="font-bold text-sm text-white truncate pr-2"></h4>
+        <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm">✕</button>
       </div>
 
-      <h3 class="text-base font-black text-white mb-1">Episódio Exclusivo VIP</h3>
-      <p class="text-xs text-gray-300 mb-5 leading-relaxed">
-        Você assistiu à demonstração grátis! Para continuar maratonando os episódios completos sem interrupções, libere seu acesso VIP oficial.
-      </p>
-
-      <div class="space-y-2">
-        <button onclick="abrirSuporteVIP()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-amber-500/30 active:scale-95 transition">
-          <i class="fa-solid fa-crown mr-1"></i> Desbloquear Acesso Completo
-        </button>
-        <button onclick="fecharVipNotice()" class="w-full py-2.5 rounded-xl bg-brand-card hover:bg-gray-800 text-gray-300 font-bold text-xs border border-brand-border active:scale-95 transition">
-          Voltar ao Catálogo
-        </button>
+      <div class="w-full bg-black aspect-video flex items-center justify-center relative">
+        <video id="player" controls class="w-full h-full max-h-[35vh]" playsinline controlsList="nodownload">
+          <source id="playerSrc" src="" type="video/mp4">
+        </video>
+        <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3">
+          <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2"></i>
+          <p class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
+        </div>
       </div>
+
+      <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
+      
+      <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://sufficient-anybody-oil-cycles.trycloudflare.com/api/catalogo";
+    const API_URL = "https://sufficient-anybody-oil-cycles.trycloudflare.com/api/catalogo?t=" + Date.now();
 
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.expand();
-      tg.ready();
-    }
+    if (tg) { tg.expand(); tg.ready(); }
 
-    let catalogo = [
-      {
-        id: "mais-linda-que-voce",
-        titulo: "Mais Linda Que Você",
-        categoria: "turcas",
-        capa: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
-        descricao: "Uma médica dermatologista do interior é forçada a trabalhar numa clínica de estética em Istambul.",
-        temDublado: true,
-        temLegendado: true,
-        episodios: {
-          legendado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "https://discussion-liberty-tired-conviction.trycloudflare.com/stream/1", is_vip: false }
-          ],
-          dublado: []
-        }
-      },
-      {
-        id: "cidade-cruel",
-        titulo: "Cidade Cruel (Zalim İstanbul)",
-        categoria: "turcas",
-        capa: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
-        descricao: "Duas famílias de realidades opostas se cruzam em uma mansão à beira do Bósforo.",
-        temDublado: false,
-        temLegendado: true,
-        episodios: {
-          legendado: [
-            { ep: 1, titulo: "Episódio 01", streamUrl: "https://discussion-liberty-tired-conviction.trycloudflare.com/stream/2", is_vip: false }
-          ],
-          dublado: []
-        }
-      }
-    ];
+    let dadosCompletos = [];
+    let catAtual = "turcas";
+    let serieAberta = null;
 
-    let categoriaAtiva = "turcas";
-    let obraSelecionada = null;
-    let audioAtivo = "legendado";
-
-    async function carregarDadosDaVPS() {
+    async function buscarCatalogo() {
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-
+        
         if (data.config) {
-          if (data.config.titulo_app) {
-            document.getElementById("appTitleText").innerText = data.config.titulo_app;
-          }
-          if (data.config.logo_url && data.config.logo_url.trim() !== "") {
-            document.getElementById("appLogoImg").src = data.config.logo_url;
-          }
-          if (data.config.cor_destaque) {
-            document.documentElement.style.setProperty('--brand-gold', data.config.cor_destaque);
-          }
+          if (data.config.titulo_app) document.getElementById("appTitulo").innerText = data.config.titulo_app;
+          if (data.config.logo_url) document.getElementById("appLogo").src = data.config.logo_url;
         }
 
-        if (data.series && data.series.length > 0) {
-          const seriesFormatadas = data.series.map(s => {
-            const epsFormatados = s.episodios.map((ep, idx) => ({
-              ep: ep.numero,
-              titulo: ep.titulo,
-              streamUrl: ep.url,
-              is_vip: idx >= 2
-            }));
-
-            return {
-              id: "serie-" + s.id,
-              titulo: s.titulo,
-              categoria: s.categoria || "turcas",
-              capa: s.capa || "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
-              descricao: s.sinopse || "Sem descrição informada.",
-              temDublado: false,
-              temLegendado: true,
-              episodios: {
-                legendado: epsFormatados,
-                dublado: []
-              }
-            };
-          });
-
-          catalogo = seriesFormatadas;
-          filtrarCategoria(categoriaAtiva);
-        }
-      } catch (err) {
-        console.log("Mantendo catálogo local:", err);
+        dadosCompletos = data.series || [];
+        renderizar();
+      } catch (e) {
+        document.getElementById("gridSeries").innerHTML = "<p class='col-span-full text-center text-red-400 text-xs py-8'>Erro de conexão com o servidor.</p>";
       }
     }
 
-    function filtrarCategoria(cat) {
-      categoriaAtiva = cat;
+    function normalizarCat(c) {
+      if (!c) return "turcas";
+      c = c.toLowerCase().trim();
+      if (c.includes("filme")) return "filmes-turcos";
+      if (c.includes("livro") || c.includes("romance")) return "romances-livros";
+      if (c.includes("dorama")) return "doramas";
+      if (c.includes("latina")) return "latinas";
+      return "turcas";
+    }
 
-      document.querySelectorAll(".tab-btn").forEach(btn => {
-        if (btn.getAttribute("data-cat") === cat) {
-          btn.className = "tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold shadow-md shadow-amber-500/30 flex items-center gap-1.5";
+    function selecionarCat(c) {
+      catAtual = c;
+      document.querySelectorAll(".cat-btn").forEach(btn => {
+        if (btn.getAttribute("data-c") === c) {
+          btn.className = "cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow font-bold";
         } else {
-          btn.className = "tab-btn px-4 py-2 rounded-full whitespace-nowrap bg-brand-surface text-gray-300 hover:text-white border border-brand-border flex items-center gap-1.5";
+          btn.className = "cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300 font-bold";
         }
       });
+      renderizar();
+    }
 
-      const titulos = {
+    function renderizar() {
+      const nomes = {
         "turcas": "Novelas Turcas",
         "filmes-turcos": "Filmes Turcos (Gratuitos)",
         "romances-livros": "Romances de Livros (Gratuitos)",
         "doramas": "Doramas Coreanos & Asiáticos",
         "latinas": "Novelas Latinas"
       };
+      document.getElementById("catTitle").innerText = nomes[catAtual] || "Catálogo";
 
-      document.getElementById("currentCatTitle").innerText = titulos[cat] || "Catálogo";
+      const filtrados = dadosCompletos.filter(s => normalizarCat(s.categoria) === catAtual);
+      document.getElementById("catCount").innerText = `${filtrados.length} títulos`;
 
-      const filtrados = catalogo.filter(item => item.categoria === cat);
-      document.getElementById("itemsCounter").innerText = `${filtrados.length} títulos`;
-
-      const grid = document.getElementById("mediaGrid");
+      const grid = document.getElementById("gridSeries");
       grid.innerHTML = "";
 
       if (filtrados.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full py-12 text-center text-gray-500">
-            <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
-            <p class="text-xs">Nenhum título cadastrado nesta categoria ainda.</p>
-          </div>
-        `;
+        grid.innerHTML = "<p class='col-span-full text-center text-gray-500 text-xs py-10'>Nenhum título cadastrado nesta categoria ainda.</p>";
         return;
       }
 
-      filtrados.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "bg-brand-surface border border-brand-border rounded-2xl overflow-hidden card-tap-effect cursor-pointer flex flex-col shadow-md";
-        card.onclick = () => abrirDetalhesObra(item.id);
-
-        let badges = "";
-        if (item.categoria === "filmes-turcos" || item.categoria === "romances-livros") {
-          badges += `<span class="bg-emerald-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow">GRÁTIS</span>`;
-        }
-        if (item.temDublado) {
-          badges += `<span class="bg-amber-400 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded shadow">DUB</span>`;
-        }
-        if (item.temLegendado) {
-          badges += `<span class="bg-blue-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow">LEG</span>`;
-        }
-
-        card.innerHTML = `
-          <div class="relative aspect-[3/4] bg-black overflow-hidden">
-            <img src="${item.capa}" alt="${item.titulo}" class="w-full h-full object-cover">
-            <div class="absolute top-2 left-2 flex flex-wrap gap-1">
-              ${badges}
-            </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent"></div>
+      filtrados.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "bg-[#141724] border border-gray-800 rounded-xl overflow-hidden cursor-pointer flex flex-col active:scale-95 transition";
+        div.onclick = () => abrirModal(s);
+        div.innerHTML = `
+          <div class="aspect-[3/4] bg-black">
+            <img src="${s.capa || 'https://placehold.co/400x600/141724/f59e0b?text=' + encodeURIComponent(s.titulo)}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x600/141724/f59e0b?text=NV';">
           </div>
-          <div class="p-2.5 flex flex-col flex-1 justify-between">
-            <h4 class="font-bold text-xs text-white leading-tight line-clamp-1">${item.titulo}</h4>
-            <p class="text-[10px] text-gray-400 mt-1 line-clamp-1">${item.descricao}</p>
+          <div class="p-2 flex flex-col justify-between flex-1">
+            <p class="font-bold text-xs text-white truncate">${s.titulo}</p>
+            <p class="text-[10px] text-gray-400 line-clamp-1 mt-0.5">${s.sinopse || ''}</p>
           </div>
         `;
-        grid.appendChild(card);
+        grid.appendChild(div);
       });
     }
 
-    function abrirDetalhesObra(id) {
-      obraSelecionada = catalogo.find(i => i.id === id);
-      if (!obraSelecionada) return;
+    function abrirModal(s) {
+      serieAberta = s;
+      document.getElementById("mTitulo").innerText = s.titulo;
+      document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
+      
+      const v = document.getElementById("player");
+      v.pause();
+      document.getElementById("playerSrc").src = "";
+      document.getElementById("avisoPlay").classList.remove("hidden");
 
-      document.getElementById("modalTitle").innerText = obraSelecionada.titulo;
-      document.getElementById("modalCategory").innerText = obraSelecionada.categoria.replace("-", " ").toUpperCase();
+      const lista = document.getElementById("mEpsList");
+      lista.innerHTML = "";
 
-      const audioContainer = document.getElementById("audioSelectorContainer");
-      const btnDub = document.getElementById("btnSelectDublado");
-      const btnLeg = document.getElementById("btnSelectLegendado");
-
-      if (obraSelecionada.temDublado && obraSelecionada.temLegendado) {
-        audioContainer.classList.remove("hidden");
-        btnDub.classList.remove("hidden");
-        btnLeg.classList.remove("hidden");
-        audioAtivo = "legendado";
-      } else if (obraSelecionada.temDublado) {
-        audioContainer.classList.remove("hidden");
-        btnDub.classList.remove("hidden");
-        btnLeg.classList.add("hidden");
-        audioAtivo = "dublado";
+      const eps = s.episodios || [];
+      if (eps.length === 0) {
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado ainda.</p>";
       } else {
-        audioContainer.classList.remove("hidden");
-        btnDub.classList.add("hidden");
-        btnLeg.classList.remove("hidden");
-        audio
+        eps.forEach(ep => {
+          const item = document.createElement("div");
+          item.className = "p-2.5 rounded-lg bg-gray-800/80 border border-gray-700 flex items-center justify-between cursor-pointer active:scale-98";
+          item.onclick = () => {
+            document.getElementById("avisoPlay").classList.add("hidden");
+            document.getElementById("playerSrc").src = ep.url;
+            v.load();
+            v.play();
+          };
+          item.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center">${ep.numero || 1}</span>
+              <span class="text-xs font-bold text-white">${ep.titulo || 'Episódio ' + ep.numero}</span>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ASSISTIR</span>
+          `;
+          lista.appendChild(item);
+        });
+      }
+
+      const m = document.getElementById("modalPlayer");
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+    }
+
+    function fecharModal() {
+      const v = document.getElementById("player");
+      v.pause();
+      document.getElementById("playerSrc").src = "";
+      const m = document.getElementById("modalPlayer");
+      m.classList.add("hidden");
+      m.classList.remove("flex");
+    }
+
+    function abrirVip() {
+      if (tg) tg.openTelegramLink("https://t.me/GseriesturcasNV_bot");
+      else window.open("https://t.me/GseriesturcasNV_bot", "_blank");
+    }
+
+    buscarCatalogo();
+  </script>
+</body>
+</html>
