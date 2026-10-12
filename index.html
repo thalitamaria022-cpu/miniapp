@@ -80,18 +80,18 @@
 </head>
 <body class="min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Topo: posicionado abaixo de "Fechar" e encostado à esquerda no tamanho normal -->
-  <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 62px) !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 pb-3 shadow-md">
-    <div class="app-container flex items-center justify-between">
+  <!-- Topo: alinhado à esquerda, abaixo da palavra Fechar, com logo e texto ampliados -->
+  <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 64px) !important; padding-left: 14px !important; padding-right: 14px !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 pb-3 shadow-md">
+    <div class="w-full flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
-        <div>
-          <h1 id="appTitulo" class="font-extrabold text-sm text-amber-400">Séries Turcas NV</h1>
-          <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
+        <img id="appLogo" src="logo.jpg" class="w-12 h-12 rounded-full border-2 border-amber-500/70 object-cover shadow-md flex-shrink-0" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
+        <div class="flex flex-col text-left">
+          <h1 id="appTitulo" class="font-black text-base text-amber-400 tracking-tight leading-tight">Séries Turcas NV</h1>
+          <p class="text-[11px] text-gray-300 font-medium">Streaming Exclusivo & Direto</p>
         </div>
       </div>
-      <button onclick="abrirVip()" class="px-3 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow-md active:scale-95 transition">
-        <i class="fa-solid fa-crown text-[10px]"></i> VIP
+      <button onclick="abrirVip()" class="px-3.5 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow-md active:scale-95 transition flex-shrink-0">
+        <i class="fa-solid fa-crown text-[11px]"></i> VIP
       </button>
     </div>
   </header>
@@ -114,7 +114,7 @@
   </div>
 
   <!-- Categorias -->
-  <nav class="sticky top-[115px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
+  <nav class="sticky top-[125px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
     <div class="app-container flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
       <button onclick="selecionarCat('turcas')" data-c="turcas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow">🇹🇷 Séries Turcas</button>
       <button onclick="selecionarCat('filmes-turcos')" data-c="filmes-turcos" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🎬 Filmes Turcos <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
@@ -260,7 +260,7 @@
       // Posições: cantos e centro
       const posicoes = [
         { top: "14px", left: "14px", right: "auto", bottom: "auto" },
-        { top: "45%", left: "30%", right: "auto", bottom: "auto" }, // Centro
+        { top: "45%", left: "30%", right: "auto", bottom: "auto" },
         { bottom: "16px", left: "14px", top: "auto", right: "auto" },
         { bottom: "16px", right: "14px", top: "auto", left: "auto" },
         { top: "14px", left: "14px", right: "auto", bottom: "auto" }
