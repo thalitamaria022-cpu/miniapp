@@ -10,7 +10,6 @@
   <style>
     :root { 
       --brand-cor: #f59e0b; 
-      --safe-top: env(safe-area-inset-top, 0px);
     }
     body { 
       background-color: #0b0d14; 
@@ -23,11 +22,6 @@
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
-    
-    /* Espaçamento seguro para descer o cabeçalho e não cobrir o X Fechar */
-    .header-safe {
-      padding-top: calc(var(--safe-top) + 52px) !important;
-    }
 
     /* Esconder o botão cinzento nativo inativo no Telegram */
     video::-webkit-media-controls-fullscreen-button {
@@ -65,31 +59,35 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água dinâmica transparente anti-gravação */
+    /* Marca d'água 100% limpa, semi-transparente, sem contorno e sem sombra */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
-      z-index: 40;
-      color: rgba(255, 255, 255, 0.28);
+      z-index: 35;
+      color: rgba(255, 255, 255, 0.28) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+      outline: none !important;
+      border: none !important;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+      letter-spacing: 0.3px;
       transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
     }
   </style>
 </head>
 <body class="min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Topo com margem segura do Telegram -->
-  <header class="header-safe sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 pb-3 shadow-md">
-    <div class="app-container flex items-center justify-between pr-2">
-      <div class="flex items-center gap-3">
-        <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
+  <!-- Topo: 70px de margem superior e 60px à esquerda para livrar o botão Fechar do Telegram -->
+  <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 70px) !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 pb-3 shadow-md">
+    <div class="app-container flex items-center justify-between pl-[60px] pr-3">
+      <div class="flex items-center gap-2.5">
+        <img id="appLogo" src="logo.jpg" class="w-9 h-9 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
         <div>
-          <h1 id="appTitulo" class="font-extrabold text-sm text-amber-400">Séries Turcas NV</h1>
-          <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
+          <h1 id="appTitulo" class="font-extrabold text-xs sm:text-sm text-amber-400 leading-tight">Séries Turcas NV</h1>
+          <p class="text-[9px] text-gray-400">Streaming Exclusivo & Direto</p>
         </div>
       </div>
       <button onclick="abrirVip()" class="px-3 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow-md active:scale-95 transition">
@@ -116,7 +114,7 @@
   </div>
 
   <!-- Categorias -->
-  <nav class="sticky top-[102px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
+  <nav class="sticky top-[125px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
     <div class="app-container flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
       <button onclick="selecionarCat('turcas')" data-c="turcas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow">🇹🇷 Séries Turcas</button>
       <button onclick="selecionarCat('filmes-turcos')" data-c="filmes-turcos" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🎬 Filmes Turcos <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
@@ -181,8 +179,8 @@
           <source id="playerSrc" src="" type="video/mp4">
         </video>
 
-        <!-- Marca d'água dinâmica antifurto/anti-gravação -->
-        <div id="userWatermark" class="watermark-antigravacao top-3 right-3"></div>
+        <!-- Marca d'água limpa e semi-transparente -->
+        <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
         <!-- Overlay Identificação do Episódio no Topo (Some sozinho) -->
         <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
@@ -247,23 +245,25 @@
       }
     }
 
-    // Identificação do Usuário para Marca D'água Dinâmica
+    // Marca d'água semi-transparente que passa pelos cantos e centro
     function iniciarMarcaDagua() {
       const wm = document.getElementById("userWatermark");
       const user = tg?.initDataUnsafe?.user;
-      let textoIdentificador = "Séries Turcas NV";
+      let textoIdentificador = "";
       if (user) {
-        textoIdentificador = (user.username ? `@${user.username}` : user.first_name) + ` (ID: ${user.id})`;
+        textoIdentificador = (user.username ? `@${user.username}` : user.first_name || "Membro") + ` (ID: ${user.id})`;
+      } else {
+        textoIdentificador = "Séries Turcas NV";
       }
       wm.innerText = textoIdentificador;
 
-      // Movimentar a marca d'água a cada 10 segundos
+      // Posições: cantos e centro
       const posicoes = [
-        { top: "12px", left: "14px", right: "auto", bottom: "auto" },
-        { top: "12px", right: "14px", left: "auto", bottom: "auto" },
-        { bottom: "24px", left: "14px", top: "auto", right: "auto" },
-        { bottom: "24px", right: "14px", top: "auto", left: "auto" },
-        { top: "45%", left: "30%", right: "auto", bottom: "auto" }
+        { top: "14px", left: "14px", right: "auto", bottom: "auto" },
+        { top: "45%", left: "30%", right: "auto", bottom: "auto" }, // Centro
+        { bottom: "16px", left: "14px", top: "auto", right: "auto" },
+        { bottom: "16px", right: "14px", top: "auto", left: "auto" },
+        { top: "14px", left: "14px", right: "auto", bottom: "auto" }
       ];
 
       let idx = 0;
@@ -277,7 +277,7 @@
       }, 10000);
     }
 
-    // Bloquear atalhos de gravação/inspeção e menu de contexto
+    // Bloquear atalhos e menu de contexto
     document.addEventListener("contextmenu", (e) => e.preventDefault());
     document.addEventListener("keydown", (e) => {
       if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
@@ -423,7 +423,7 @@
         "turcas": "Novelas Turcas",
         "filmes-turcos": "Filmes Turcos (Gratuitos)",
         "romances-livros": "Romances de Livros (Gratuitos)",
-        "doramas": "Doramas Coreanos & Asiáticos",
+        "doramas": "Doramas Coreares & Asiáticos",
         "latinas": "Novelas Latinas"
       };
 
