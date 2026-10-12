@@ -80,14 +80,14 @@
 </head>
 <body class="min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Topo: 70px de margem superior e 60px à esquerda para livrar o botão Fechar do Telegram -->
-  <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 70px) !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 pb-3 shadow-md">
-    <div class="app-container flex items-center justify-between pl-[60px] pr-3">
-      <div class="flex items-center gap-2.5">
-        <img id="appLogo" src="logo.jpg" class="w-9 h-9 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
+  <!-- Topo: posicionado abaixo de "Fechar" e encostado à esquerda no tamanho normal -->
+  <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 62px) !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 pb-3 shadow-md">
+    <div class="app-container flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
         <div>
-          <h1 id="appTitulo" class="font-extrabold text-xs sm:text-sm text-amber-400 leading-tight">Séries Turcas NV</h1>
-          <p class="text-[9px] text-gray-400">Streaming Exclusivo & Direto</p>
+          <h1 id="appTitulo" class="font-extrabold text-sm text-amber-400">Séries Turcas NV</h1>
+          <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
         </div>
       </div>
       <button onclick="abrirVip()" class="px-3 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow-md active:scale-95 transition">
@@ -114,7 +114,7 @@
   </div>
 
   <!-- Categorias -->
-  <nav class="sticky top-[125px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
+  <nav class="sticky top-[115px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
     <div class="app-container flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
       <button onclick="selecionarCat('turcas')" data-c="turcas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow">🇹🇷 Séries Turcas</button>
       <button onclick="selecionarCat('filmes-turcos')" data-c="filmes-turcos" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🎬 Filmes Turcos <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
@@ -423,7 +423,7 @@
         "turcas": "Novelas Turcas",
         "filmes-turcos": "Filmes Turcos (Gratuitos)",
         "romances-livros": "Romances de Livros (Gratuitos)",
-        "doramas": "Doramas Coreares & Asiáticos",
+        "doramas": "Doramas Coreanos & Asiáticos",
         "latinas": "Novelas Latinas"
       };
 
