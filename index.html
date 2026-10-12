@@ -2,18 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Séries Turcas NV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --brand-cor: #f59e0b; }
-    body { background-color: #0b0d14; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
+    :root { 
+      --brand-cor: #f59e0b; 
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+    body { 
+      background-color: #0b0d14; 
+      color: #f3f4f6; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      user-select: none; 
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
     
+    /* Espaçamento seguro para descer o cabeçalho e não cobrir o X Fechar */
+    .header-safe {
+      padding-top: calc(var(--safe-top) + 52px) !important;
+    }
+
     /* Esconder o botão cinzento nativo inativo no Telegram */
     video::-webkit-media-controls-fullscreen-button {
       display: none !important;
@@ -49,21 +64,35 @@
       visibility: hidden !important;
       pointer-events: none !important;
     }
+
+    /* Marca d'água dinâmica transparente anti-gravação */
+    .watermark-antigravacao {
+      position: absolute;
+      pointer-events: none;
+      user-select: none;
+      z-index: 40;
+      color: rgba(255, 255, 255, 0.28);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
+    }
   </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Topo -->
-  <header class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 py-3 shadow-md">
-    <div class="app-container flex items-center justify-between pr-12">
+  <!-- Topo com margem segura do Telegram -->
+  <header class="header-safe sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 px-4 pb-3 shadow-md">
+    <div class="app-container flex items-center justify-between pr-2">
       <div class="flex items-center gap-3">
-        <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
+        <img id="appLogo" src="logo.jpg" class="w-10 h-10 rounded-full border border-amber-500/50 object-cover shadow" onerror="this.src='https://placehold.co/100x100/11151F/f59e0b?text=NV'">
         <div>
           <h1 id="appTitulo" class="font-extrabold text-sm text-amber-400">Séries Turcas NV</h1>
           <p class="text-[10px] text-gray-400">Streaming Exclusivo & Direto</p>
         </div>
       </div>
-      <button onclick="abrirVip()" class="px-3 py-1 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow active:scale-95 transition">
+      <button onclick="abrirVip()" class="px-3 py-1.5 rounded-full bg-amber-500 text-black font-extrabold text-xs flex items-center gap-1 shadow-md active:scale-95 transition">
         <i class="fa-solid fa-crown text-[10px]"></i> VIP
       </button>
     </div>
@@ -87,7 +116,7 @@
   </div>
 
   <!-- Categorias -->
-  <nav class="sticky top-[61px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
+  <nav class="sticky top-[102px] z-30 bg-[#0b0d14]/95 backdrop-blur px-3 py-2 border-b border-gray-800/80">
     <div class="app-container flex gap-2 overflow-x-auto hide-scrollbar text-xs font-bold" id="catsMenu">
       <button onclick="selecionarCat('turcas')" data-c="turcas" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-amber-500 text-black shadow">🇹🇷 Séries Turcas</button>
       <button onclick="selecionarCat('filmes-turcos')" data-c="filmes-turcos" class="cat-btn px-4 py-2 rounded-full whitespace-nowrap bg-gray-800 text-gray-300">🎬 Filmes Turcos <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded">GRÁTIS</span></button>
@@ -136,18 +165,24 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
-      <!-- Contentor do Vídeo -->
-      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()">
+      <!-- Contentor do Vídeo com proteção -->
+      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
         <video 
           id="player" 
           controls 
           playsinline 
           webkit-playsinline 
           x5-playsinline 
+          preload="auto"
+          controlsList="nodownload noplaybackrate" 
+          disablePictureInPicture
           class="w-full h-full max-h-[35vh]" 
-          controlsList="nodownload">
+          oncontextmenu="return false;">
           <source id="playerSrc" src="" type="video/mp4">
         </video>
+
+        <!-- Marca d'água dinâmica antifurto/anti-gravação -->
+        <div id="userWatermark" class="watermark-antigravacao top-3 right-3"></div>
 
         <!-- Overlay Identificação do Episódio no Topo (Some sozinho) -->
         <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
@@ -160,7 +195,7 @@
           </span>
         </div>
 
-        <!-- Botão Sair da Tela Cheia posicionado no topo esquerdo -->
+        <!-- Botão Sair da Tela Cheia -->
         <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
           <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
         </button>
@@ -205,13 +240,50 @@
       if (tg.requestFullscreen) tg.requestFullscreen();
       tg.ready(); 
 
-      // Botão Voltar nativo do Telegram
       if (tg.BackButton) {
         tg.BackButton.onClick(() => {
           gerenciarRetorno();
         });
       }
     }
+
+    // Identificação do Usuário para Marca D'água Dinâmica
+    function iniciarMarcaDagua() {
+      const wm = document.getElementById("userWatermark");
+      const user = tg?.initDataUnsafe?.user;
+      let textoIdentificador = "Séries Turcas NV";
+      if (user) {
+        textoIdentificador = (user.username ? `@${user.username}` : user.first_name) + ` (ID: ${user.id})`;
+      }
+      wm.innerText = textoIdentificador;
+
+      // Movimentar a marca d'água a cada 10 segundos
+      const posicoes = [
+        { top: "12px", left: "14px", right: "auto", bottom: "auto" },
+        { top: "12px", right: "14px", left: "auto", bottom: "auto" },
+        { bottom: "24px", left: "14px", top: "auto", right: "auto" },
+        { bottom: "24px", right: "14px", top: "auto", left: "auto" },
+        { top: "45%", left: "30%", right: "auto", bottom: "auto" }
+      ];
+
+      let idx = 0;
+      setInterval(() => {
+        idx = (idx + 1) % posicoes.length;
+        const p = posicoes[idx];
+        wm.style.top = p.top;
+        wm.style.bottom = p.bottom;
+        wm.style.left = p.left;
+        wm.style.right = p.right;
+      }, 10000);
+    }
+
+    // Bloquear atalhos de gravação/inspeção e menu de contexto
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
+        e.preventDefault();
+      }
+    });
 
     let dadosCompletos = [];
     let catAtual = "turcas";
@@ -231,7 +303,6 @@
       }
     }
 
-    // Passagem Automática de Episódio ao terminar
     videoEl.addEventListener("ended", () => {
       if (serieAberta && serieAberta.episodios && indiceEpAtual < serieAberta.episodios.length - 1) {
         mudarEpisodio(1);
@@ -550,6 +621,7 @@
       else window.open("https://t.me/GseriesturcasNV_bot", "_blank");
     }
 
+    iniciarMarcaDagua();
     buscarCatalogo();
   </script>
 </body>
