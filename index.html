@@ -334,8 +334,6 @@
     let indiceEpAtual = -1;
     let isFullscreen = false;
     let timerOcultarControles = null;
-    let tempoParaRestaurar = 0;
-    let restauracaoPendente = false;
 
     const videoEl = document.getElementById("player");
 
@@ -348,16 +346,6 @@
     }
 
     videoEl.addEventListener("timeupdate", () => {
-      // Aplica o tempo salvo com segurança no primeiro momento em que o vídeo começar a rodar
-      if (restauracaoPendente && tempoParaRestaurar > 0) {
-        restauracaoPendente = false;
-        try {
-          videoEl.currentTime = tempoParaRestaurar;
-        } catch(e) {}
-        tempoParaRestaurar = 0;
-        return;
-      }
-
       if (serieAberta && indiceEpAtual >= 0 && videoEl.currentTime > 2) {
         salvarProgresso(serieAberta.titulo, indiceEpAtual, videoEl.currentTime);
       }
@@ -681,9 +669,6 @@
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       indiceEpAtual = index;
-      tempoParaRestaurar = retomarSegundo;
-      restauracaoPendente = (retomarSegundo > 0);
-
       const ep = serieAberta.episodios[index];
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
@@ -703,7 +688,23 @@
       mostrarControlesImersivos();
       
       videoEl.load();
-      videoEl.play().catch(() => {});
+
+      // Aplicação suave e estável da minutagem guardada
+      if (retomarSegundo > 0) {
+        const aplicarTempo = () => {
+          try {
+            if (Math.abs(videoEl.currentTime - retomarSegundo) > 2) {
+              videoEl.currentTime = retomarSegundo;
+            }
+          } catch(e) {}
+          videoEl.play().catch(() => {});
+        };
+
+        videoEl.addEventListener("loadeddata", aplicarTempo, { once: true });
+        videoEl.addEventListener("canplay", aplicarTempo, { once: true });
+      } else {
+        videoEl.play().catch(() => {});
+      }
 
       salvarProgresso(serieAberta.titulo, indiceEpAtual, retomarSegundo);
       configurarBotaoContinuarModal();
