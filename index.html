@@ -80,7 +80,7 @@
 </head>
 <body class="min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Topo: alinhado à esquerda, abaixo da palavra Fechar, com logo e texto ampliados -->
+  <!-- Topo -->
   <header style="padding-top: calc(env(safe-area-inset-top, 0px) + 64px) !important; padding-left: 14px !important; padding-right: 14px !important;" class="sticky top-0 z-40 bg-[#111420]/95 backdrop-blur border-b border-gray-800 pb-3 shadow-md">
     <div class="w-full flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -125,7 +125,7 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner Oficial Atualizado -->
+    <!-- Banner Oficial -->
     <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
         <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -140,7 +140,16 @@
       </div>
     </section>
 
-    <!-- Contador e Título -->
+    <!-- Seção Netflix: Continuar Assistindo (Aparece se houver histórico) -->
+    <section id="secaoContinuarAssistindo" class="px-4 mb-4 hidden">
+      <div class="flex items-center gap-2 mb-2.5">
+        <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
+        <h3 class="text-xs font-bold uppercase text-amber-400 tracking-wider">Continuar Assistindo</h3>
+      </div>
+      <div id="gridContinuar" class="flex gap-3 overflow-x-auto hide-scrollbar pb-1"></div>
+    </section>
+
+    <!-- Contador e Título Principal -->
     <div class="px-4 flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
         <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
@@ -149,7 +158,7 @@
       <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
     </div>
 
-    <!-- Cards -->
+    <!-- Cards Principais -->
     <main class="px-4">
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"></div>
     </main>
@@ -163,7 +172,7 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
-      <!-- Contentor do Vídeo com proteção -->
+      <!-- Container do Vídeo com proteção -->
       <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
         <video 
           id="player" 
@@ -182,7 +191,7 @@
         <!-- Marca d'água limpa e semi-transparente -->
         <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-        <!-- Overlay Identificação do Episódio no Topo (Some sozinho) -->
+        <!-- Overlay Identificação do Episódio no Topo -->
         <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
           <div class="flex flex-col">
             <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
@@ -223,13 +232,22 @@
       </div>
 
       <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
+
+      <!-- Botão em Destaque: Continuar do Episódio X -->
+      <div id="containerBtnContinuarModal" class="p-2.5 bg-[#141724] border-b border-gray-800/80 hidden">
+        <button id="btnContinuarModal" class="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition">
+          <i class="fa-solid fa-circle-play text-sm"></i>
+          <span id="textoBtnContinuarModal">Continuar de onde parou</span>
+        </button>
+      </div>
       
+      <!-- Lista de Episódios -->
       <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
     </div>
   </div>
 
   <script>
-    // Inicialização segura do Telegram WebApp e captura do User ID
+    // Inicialização do Telegram WebApp e leitura do User ID
     const tg = window.Telegram?.WebApp;
     if (tg) { 
       tg.expand(); 
@@ -247,10 +265,34 @@
     const urlParams = new URLSearchParams(window.location.search);
     const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('uid') || '';
 
-    // API com UID para bloquear usuários banidos mesmo em links antigos
+    // Chamada à API com validação do ID para bloqueio de usuários suspensos
     const API_URL = "https://seriesturcasnv.com/api/catalogo?t=" + Date.now() + (userId ? "&uid=" + userId : "");
 
-    // Marca d'água semi-transparente que passa pelos cantos e centro
+    // Sistema de Progresso Local (Netflix style)
+    const CHAVE_HISTORICO = "nv_progresso_series";
+
+    function obterHistorico() {
+      try {
+        return JSON.parse(localStorage.getItem(CHAVE_HISTORICO)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function salvarProgresso(serieTitulo, indiceEp, tempoAtual = 0) {
+      if (!serieTitulo || indiceEp < 0) return;
+      const hist = obterHistorico();
+      hist[serieTitulo] = {
+        indiceEp: indiceEp,
+        tempo: tempoAtual,
+        atualizadoEm: Date.now()
+      };
+      try {
+        localStorage.setItem(CHAVE_HISTORICO, JSON.stringify(hist));
+      } catch (e) {}
+    }
+
+    // Marca d'água semi-transparente
     function iniciarMarcaDagua() {
       const wm = document.getElementById("userWatermark");
       const user = tg?.initDataUnsafe?.user;
@@ -264,7 +306,6 @@
       }
       wm.innerText = textoIdentificador;
 
-      // Posições: cantos e centro
       const posicoes = [
         { top: "14px", left: "14px", right: "auto", bottom: "auto" },
         { top: "45%", left: "30%", right: "auto", bottom: "auto" },
@@ -284,7 +325,7 @@
       }, 10000);
     }
 
-    // Bloquear atalhos e menu de contexto
+    // Bloqueio de atalhos e clique direito
     document.addEventListener("contextmenu", (e) => e.preventDefault());
     document.addEventListener("keydown", (e) => {
       if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
@@ -299,6 +340,7 @@
     let indiceEpAtual = -1;
     let isFullscreen = false;
     let timerOcultarControles = null;
+    let tempoParaRestaurar = 0;
 
     const videoEl = document.getElementById("player");
 
@@ -309,6 +351,21 @@
         fecharModal();
       }
     }
+
+    // Salva o progresso conforme o vídeo toca
+    videoEl.addEventListener("timeupdate", () => {
+      if (serieAberta && indiceEpAtual >= 0 && videoEl.currentTime > 2) {
+        salvarProgresso(serieAberta.titulo, indiceEpAtual, Math.floor(videoEl.currentTime));
+      }
+    });
+
+    // Ao carregar os metadados, restaura o segundo onde parou (se houver)
+    videoEl.addEventListener("loadedmetadata", () => {
+      if (tempoParaRestaurar > 0 && tempoParaRestaurar < videoEl.duration - 5) {
+        videoEl.currentTime = tempoParaRestaurar;
+        tempoParaRestaurar = 0;
+      }
+    });
 
     videoEl.addEventListener("ended", () => {
       if (serieAberta && serieAberta.episodios && indiceEpAtual < serieAberta.episodios.length - 1) {
@@ -322,6 +379,9 @@
 
     videoEl.addEventListener("pause", () => {
       mostrarControlesImersivos(true);
+      if (serieAberta && indiceEpAtual >= 0) {
+        salvarProgresso(serieAberta.titulo, indiceEpAtual, Math.floor(videoEl.currentTime));
+      }
     });
 
     function acionarInteracaoTela() {
@@ -381,9 +441,68 @@
 
         dadosCompletos = data.series || [];
         renderizar();
+        renderizarContinuarAssistindo();
       } catch (e) {
         document.getElementById("gridSeries").innerHTML = "<p class='col-span-full text-center text-red-400 text-xs py-8'>Erro de conexão com o servidor.</p>";
       }
+    }
+
+    // Renderiza a fileira horizontal "Continuar Assistindo" na tela inicial
+    function renderizarContinuarAssistindo() {
+      const secao = document.getElementById("secaoContinuarAssistindo");
+      const grid = document.getElementById("gridContinuar");
+      grid.innerHTML = "";
+
+      const hist = obterHistorico();
+      const titulosEmAndamento = Object.keys(hist).filter(titulo => {
+        return dadosCompletos.some(s => s.titulo === titulo && s.episodios && s.episodios.length > 0);
+      });
+
+      if (titulosEmAndamento.length === 0 || termoBusca.length > 0) {
+        secao.classList.add("hidden");
+        return;
+      }
+
+      // Ordenar pelas séries assistidas mais recentemente
+      titulosEmAndamento.sort((a, b) => (hist[b].atualizadoEm || 0) - (hist[a].atualizadoEm || 0));
+
+      titulosEmAndamento.forEach(titulo => {
+        const s = dadosCompletos.find(item => item.titulo === titulo);
+        if (!s) return;
+
+        const info = hist[titulo];
+        const epIndex = info.indiceEp < s.episodios.length ? info.indiceEp : 0;
+        const ep = s.episodios[epIndex];
+        const rotuloEp = ep ? (ep.numero ? `Ep. ${ep.numero}` : `Ep. ${epIndex + 1}`) : `Ep. 1`;
+
+        const card = document.createElement("div");
+        card.className = "flex-shrink-0 w-32 bg-[#141724] border border-amber-500/40 rounded-xl overflow-hidden cursor-pointer shadow-md active:scale-95 transition flex flex-col";
+        card.onclick = () => {
+          abrirModal(s);
+          tocarEpisodio(epIndex, info.tempo || 0);
+        };
+
+        card.innerHTML = `
+          <div class="relative w-full aspect-[2/3] bg-black overflow-hidden">
+            <img src="${s.capa || 'https://placehold.co/400x600/141724/f59e0b?text=' + encodeURIComponent(s.titulo)}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x600/141724/f59e0b?text=NV';">
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <span class="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center shadow-lg text-xs font-bold pl-0.5">
+                <i class="fa-solid fa-play"></i>
+              </span>
+            </div>
+            <span class="absolute bottom-1.5 left-1.5 bg-black/80 border border-amber-500/50 text-amber-400 font-extrabold text-[9px] px-1.5 py-0.5 rounded backdrop-blur">
+              ${rotuloEp}
+            </span>
+          </div>
+          <div class="p-1.5">
+            <p class="font-bold text-[11px] text-white truncate">${s.titulo}</p>
+            <p class="text-[9px] text-gray-400 truncate mt-0.5"><i class="fa-solid fa-rotate-right text-[8px] text-amber-500"></i> Continuar</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      secao.classList.remove("hidden");
     }
 
     function normalizarCat(c) {
@@ -421,6 +540,7 @@
         btnLimpar.classList.add("hidden");
       }
       renderizar();
+      renderizarContinuarAssistindo();
     }
 
     function limparBusca() {
@@ -428,6 +548,7 @@
       termoBusca = "";
       document.getElementById("btnLimparBusca").classList.add("hidden");
       renderizar();
+      renderizarContinuarAssistindo();
     }
 
     function renderizar() {
@@ -495,8 +616,10 @@
       document.getElementById("avisoPlay").classList.remove("hidden");
 
       atualizarBotoesNavegacao();
-
       if (isFullscreen) alternarTelaCheia();
+
+      // Configuração do botão 'Continuar do Ep X' no modal
+      configurarBotaoContinuarModal();
 
       renderizarListaEpisodios();
 
@@ -506,6 +629,25 @@
 
       if (tg?.BackButton) {
         tg.BackButton.show();
+      }
+    }
+
+    function configurarBotaoContinuarModal() {
+      const containerBtn = document.getElementById("containerBtnContinuarModal");
+      const textoBtn = document.getElementById("textoBtnContinuarModal");
+      const btn = document.getElementById("btnContinuarModal");
+
+      const hist = obterHistorico();
+      const info = hist[serieAberta.titulo];
+
+      if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
+        const epSalvo = serieAberta.episodios[info.indiceEp];
+        const numEp = epSalvo.numero || (info.indiceEp + 1);
+        textoBtn.innerText = `Continuar do Episódio ${numEp}`;
+        btn.onclick = () => tocarEpisodio(info.indiceEp, info.tempo || 0);
+        containerBtn.classList.remove("hidden");
+      } else {
+        containerBtn.classList.add("hidden");
       }
     }
 
@@ -520,6 +662,7 @@
         eps.forEach((ep, index) => {
           const isAtivo = (index === indiceEpAtual);
           const item = document.createElement("div");
+          item.id = `ep-item-${index}`;
           item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition ${
             isAtivo ? 'bg-amber-500/20 border-amber-500/60' : 'bg-gray-800/80 border-gray-700'
           }`;
@@ -538,16 +681,18 @@
       }
     }
 
-    function tocarEpisodio(index) {
+    function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       indiceEpAtual = index;
+      tempoParaRestaurar = retomarSegundo;
+
       const ep = serieAberta.episodios[index];
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // Anexa o User ID na URL de streaming para validação de segurança no servidor
+      // Anexa o User ID para validação anti-vazamento no servidor
       let videoUrl = ep.url;
       if (userId) {
         videoUrl += (videoUrl.includes("?") ? "&" : "?") + "uid=" + encodeURIComponent(userId);
@@ -562,10 +707,18 @@
       mostrarControlesImersivos();
       
       videoEl.load();
-      videoEl.play();
+      videoEl.play().catch(() => {});
 
+      salvarProgresso(serieAberta.titulo, indiceEpAtual, retomarSegundo);
+      configurarBotaoContinuarModal();
       atualizarBotoesNavegacao();
       renderizarListaEpisodios();
+
+      // Rola a lista suavemente até o episódio que começou a tocar
+      setTimeout(() => {
+        const elementoEp = document.getElementById(`ep-item-${index}`);
+        if (elementoEp) elementoEp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 150);
     }
 
     function mudarEpisodio(direcao) {
@@ -605,6 +758,7 @@
       if (tg?.BackButton) {
         tg.BackButton.hide();
       }
+      renderizarContinuarAssistindo();
     }
 
     function alternarTelaCheia() {
