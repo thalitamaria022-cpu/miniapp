@@ -49,7 +49,6 @@
       object-fit: contain !important;
     }
 
-    /* Animação suave para sumir e reaparecer os controlos */
     .controles-imersivos {
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
@@ -59,7 +58,6 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água 100% limpa, semi-transparente, sem contorno e sem sombra */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
@@ -125,7 +123,7 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner Oficial Dinâmico (Atualizável pelo Bot) -->
+    <!-- Banner Oficial Dinâmico -->
     <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
         <p id="bannerSubtitulo" class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -140,7 +138,7 @@
       </div>
     </section>
 
-    <!-- Seção Netflix: Continuar Assistindo -->
+    <!-- Seção: Continuar Assistindo -->
     <section id="secaoContinuarAssistindo" class="px-4 mb-4 hidden">
       <div class="flex items-center gap-2 mb-2.5">
         <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
@@ -180,7 +178,7 @@
           playsinline 
           webkit-playsinline 
           x5-playsinline 
-          preload="auto" 
+          preload="metadata" 
           controlsList="nodownload noplaybackrate" 
           disablePictureInPicture
           class="w-full h-full max-h-[35vh]" 
@@ -282,7 +280,7 @@
       const hist = obterHistorico();
       hist[serieTitulo] = {
         indiceEp: indiceEp,
-        tempo: tempoAtual,
+        tempo: Math.floor(tempoAtual),
         atualizadoEm: Date.now()
       };
       try {
@@ -337,6 +335,7 @@
     let isFullscreen = false;
     let timerOcultarControles = null;
     let tempoParaRestaurar = 0;
+    let restauracaoPendente = false;
 
     const videoEl = document.getElementById("player");
 
@@ -349,26 +348,18 @@
     }
 
     videoEl.addEventListener("timeupdate", () => {
-      if (serieAberta && indiceEpAtual >= 0 && videoEl.currentTime > 2) {
-        salvarProgresso(serieAberta.titulo, indiceEpAtual, Math.floor(videoEl.currentTime));
-      }
-    });
-
-    // Pulo confiável para o minuto onde parou assim que tiver dados prontos
-    videoEl.addEventListener("loadedmetadata", () => {
-      if (tempoParaRestaurar > 0 && tempoParaRestaurar < videoEl.duration - 5) {
-        try {
-          videoEl.currentTime = tempoParaRestaurar;
-        } catch(e) {}
-      }
-    });
-
-    videoEl.addEventListener("canplay", () => {
-      if (tempoParaRestaurar > 0 && Math.abs(videoEl.currentTime - tempoParaRestaurar) > 2) {
+      // Aplica o tempo salvo com segurança no primeiro momento em que o vídeo começar a rodar
+      if (restauracaoPendente && tempoParaRestaurar > 0) {
+        restauracaoPendente = false;
         try {
           videoEl.currentTime = tempoParaRestaurar;
         } catch(e) {}
         tempoParaRestaurar = 0;
+        return;
+      }
+
+      if (serieAberta && indiceEpAtual >= 0 && videoEl.currentTime > 2) {
+        salvarProgresso(serieAberta.titulo, indiceEpAtual, videoEl.currentTime);
       }
     });
 
@@ -385,7 +376,7 @@
     videoEl.addEventListener("pause", () => {
       mostrarControlesImersivos(true);
       if (serieAberta && indiceEpAtual >= 0) {
-        salvarProgresso(serieAberta.titulo, indiceEpAtual, Math.floor(videoEl.currentTime));
+        salvarProgresso(serieAberta.titulo, indiceEpAtual, videoEl.currentTime);
       }
     });
 
@@ -443,7 +434,6 @@
           if (data.config.titulo_app) document.getElementById("appTitulo").innerText = data.config.titulo_app;
           if (data.config.logo_url) document.getElementById("appLogo").src = data.config.logo_url;
           
-          // BANNER DINÂMICO VINDO DO BOT/SERVIDOR:
           if (data.config.banner_titulo) document.getElementById("bannerSubtitulo").innerHTML = `<span>📚</span> ${data.config.banner_titulo}`;
           if (data.config.banner_texto) document.getElementById("bannerTexto").innerText = data.config.banner_texto;
           if (data.config.banner_rodape) document.getElementById("bannerRodape").innerText = data.config.banner_rodape;
@@ -692,6 +682,7 @@
       
       indiceEpAtual = index;
       tempoParaRestaurar = retomarSegundo;
+      restauracaoPendente = (retomarSegundo > 0);
 
       const ep = serieAberta.episodios[index];
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
