@@ -28,7 +28,7 @@
       display: none !important;
     }
 
-    /* Modo Cinema / Tela Cheia Real no Telegram */
+    /* Modo Cinema / Ecrã Inteiro Real no Telegram */
     .video-fullscreen-mode {
       position: fixed !important;
       inset: 0 !important;
@@ -49,7 +49,7 @@
       object-fit: contain !important;
     }
 
-    /* Animação suave para sumir e reaparecer os controles */
+    /* Animação suave para sumir e reaparecer os controlos */
     .controles-imersivos {
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
@@ -59,7 +59,7 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água semi-transparente anti-gravação */
+    /* Marca d'água 100% limpa, semi-transparente, sem contorno e sem sombra */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
@@ -163,7 +163,7 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
       </div>
 
-      <!-- Container do Vídeo com proteção -->
+      <!-- Contentor do Vídeo com proteção -->
       <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
         <video 
           id="player" 
@@ -179,10 +179,10 @@
           <source id="playerSrc" src="" type="video/mp4">
         </video>
 
-        <!-- Marca d'água anti-gravação -->
+        <!-- Marca d'água limpa e semi-transparente -->
         <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-        <!-- Overlay Identificação do Episódio no Topo -->
+        <!-- Overlay Identificação do Episódio no Topo (Some sozinho) -->
         <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
           <div class="flex flex-col">
             <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
@@ -222,21 +222,8 @@
         </div>
       </div>
 
-      <!-- Sinopse -->
       <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
       
-      <!-- Seletor de Versão: Dublado / Legendado -->
-      <div id="versaoAbasContainer" class="px-3 py-2 bg-[#111420] border-b border-gray-800/80 flex items-center gap-2">
-        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Versão:</span>
-        <button id="btnAbaDublado" onclick="alternarVersao('dublado')" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black shadow active:scale-95 transition">
-          🎙️ Dublado
-        </button>
-        <button id="btnAbaLegendado" onclick="alternarVersao('legendado')" class="px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 active:scale-95 transition">
-          💬 Legendado
-        </button>
-      </div>
-
-      <!-- Lista de Episódios -->
       <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
     </div>
   </div>
@@ -260,10 +247,10 @@
     const urlParams = new URLSearchParams(window.location.search);
     const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('uid') || '';
 
-    // URL da API com validação de cache e UID para verificação de banimento
+    // API com UID para bloquear usuários banidos mesmo em links antigos
     const API_URL = "https://seriesturcasnv.com/api/catalogo?t=" + Date.now() + (userId ? "&uid=" + userId : "");
 
-    // Marca d'água dinâmica
+    // Marca d'água semi-transparente que passa pelos cantos e centro
     function iniciarMarcaDagua() {
       const wm = document.getElementById("userWatermark");
       const user = tg?.initDataUnsafe?.user;
@@ -277,6 +264,7 @@
       }
       wm.innerText = textoIdentificador;
 
+      // Posições: cantos e centro
       const posicoes = [
         { top: "14px", left: "14px", right: "auto", bottom: "auto" },
         { top: "45%", left: "30%", right: "auto", bottom: "auto" },
@@ -296,7 +284,7 @@
       }, 10000);
     }
 
-    // Bloqueios de atalhos e clique direito para evitar download ou cópia indevida
+    // Bloquear atalhos e menu de contexto
     document.addEventListener("contextmenu", (e) => e.preventDefault());
     document.addEventListener("keydown", (e) => {
       if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
@@ -311,8 +299,6 @@
     let indiceEpAtual = -1;
     let isFullscreen = false;
     let timerOcultarControles = null;
-    let versaoSelecionada = "dublado"; // "dublado" ou "legendado"
-    let listaEpsExibidos = [];
 
     const videoEl = document.getElementById("player");
 
@@ -325,7 +311,7 @@
     }
 
     videoEl.addEventListener("ended", () => {
-      if (listaEpsExibidos.length > 0 && indiceEpAtual < listaEpsExibidos.length - 1) {
+      if (serieAberta && serieAberta.episodios && indiceEpAtual < serieAberta.episodios.length - 1) {
         mudarEpisodio(1);
       }
     });
@@ -508,12 +494,11 @@
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
 
+      atualizarBotoesNavegacao();
+
       if (isFullscreen) alternarTelaCheia();
 
-      // Configuração inicial das versões (Dublado / Legendado)
-      configurarAbasVersao();
       renderizarListaEpisodios();
-      atualizarBotoesNavegacao();
 
       const m = document.getElementById("modalPlayer");
       m.classList.remove("hidden");
@@ -524,70 +509,15 @@
       }
     }
 
-    function configurarAbasVersao() {
-      const todos = serieAberta?.episodios || [];
-      const temDublado = todos.some(e => {
-        const t = (e.titulo || "").toLowerCase();
-        return t.includes("dub") || (!t.includes("leg") && !t.includes("sub"));
-      });
-      const temLegendado = todos.some(e => {
-        const t = (e.titulo || "").toLowerCase();
-        return t.includes("leg") || t.includes("sub");
-      });
-
-      const containerAbas = document.getElementById("versaoAbasContainer");
-      if (temDublado && temLegendado) {
-        containerAbas.classList.remove("hidden");
-        containerAbas.classList.add("flex");
-        versaoSelecionada = "dublado";
-      } else {
-        containerAbas.classList.remove("flex");
-        containerAbas.classList.add("hidden");
-        versaoSelecionada = temLegendado && !temDublado ? "legendado" : "dublado";
-      }
-      atualizarEstiloAbas();
-    }
-
-    function alternarVersao(versao) {
-      versaoSelecionada = versao;
-      atualizarEstiloAbas();
-      renderizarListaEpisodios();
-    }
-
-    function atualizarEstiloAbas() {
-      const btnDub = document.getElementById("btnAbaDublado");
-      const btnLeg = document.getElementById("btnAbaLegendado");
-      if (versaoSelecionada === "dublado") {
-        btnDub.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black shadow active:scale-95 transition";
-        btnLeg.className = "px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 active:scale-95 transition";
-      } else {
-        btnDub.className = "px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 active:scale-95 transition";
-        btnLeg.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black shadow active:scale-95 transition";
-      }
-    }
-
     function renderizarListaEpisodios() {
       const lista = document.getElementById("mEpsList");
       lista.innerHTML = "";
 
-      const todos = serieAberta?.episodios || [];
-      const temAmbasVersoes = todos.some(e => (e.titulo || "").toLowerCase().includes("leg")) && 
-                              todos.some(e => !(e.titulo || "").toLowerCase().includes("leg"));
-
-      if (temAmbasVersoes) {
-        if (versaoSelecionada === "legendado") {
-          listaEpsExibidos = todos.filter(e => (e.titulo || "").toLowerCase().includes("leg"));
-        } else {
-          listaEpsExibidos = todos.filter(e => !(e.titulo || "").toLowerCase().includes("leg"));
-        }
+      const eps = serieAberta?.episodios || [];
+      if (eps.length === 0) {
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado ainda.</p>";
       } else {
-        listaEpsExibidos = todos;
-      }
-
-      if (listaEpsExibidos.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio encontrado para esta versão.</p>";
-      } else {
-        listaEpsExibidos.forEach((ep, index) => {
+        eps.forEach((ep, index) => {
           const isAtivo = (index === indiceEpAtual);
           const item = document.createElement("div");
           item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition ${
@@ -609,10 +539,10 @@
     }
 
     function tocarEpisodio(index) {
-      if (!listaEpsExibidos || !listaEpsExibidos[index]) return;
+      if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       indiceEpAtual = index;
-      const ep = listaEpsExibidos[index];
+      const ep = serieAberta.episodios[index];
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
       document.getElementById("avisoPlay").classList.add("hidden");
@@ -639,9 +569,9 @@
     }
 
     function mudarEpisodio(direcao) {
-      if (!listaEpsExibidos || listaEpsExibidos.length === 0) return;
+      if (!serieAberta || !serieAberta.episodios) return;
       const novoIndice = indiceEpAtual + direcao;
-      if (novoIndice >= 0 && novoIndice < listaEpsExibidos.length) {
+      if (novoIndice >= 0 && novoIndice < serieAberta.episodios.length) {
         tocarEpisodio(novoIndice);
       }
     }
@@ -649,7 +579,7 @@
     function atualizarBotoesNavegacao() {
       const btnAnt = document.getElementById("btnEpAnterior");
       const btnProx = document.getElementById("btnEpProximo");
-      const total = listaEpsExibidos.length;
+      const total = serieAberta?.episodios?.length || 0;
 
       if (indiceEpAtual <= 0) {
         btnAnt.disabled = true;
