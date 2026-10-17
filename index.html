@@ -665,7 +665,7 @@
       }
     }
 
-    function tocarEpisodio(index, retomarSegundo = 0) {
+   function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       indiceEpAtual = index;
@@ -689,22 +689,20 @@
       
       videoEl.load();
 
-      // Aplicação suave e estável da minutagem guardada
-      if (retomarSegundo > 0) {
-        const aplicarTempo = () => {
+      // Aplica o tempo salvo de forma estável após carregar o primeiro frame
+      if (retomarSegundo > 5) {
+        const aplicarTempoUmaVez = () => {
           try {
-            if (Math.abs(videoEl.currentTime - retomarSegundo) > 2) {
+            if (videoEl.duration && retomarSegundo < videoEl.duration - 5) {
               videoEl.currentTime = retomarSegundo;
             }
           } catch(e) {}
-          videoEl.play().catch(() => {});
+          videoEl.removeEventListener("loadeddata", aplicarTempoUmaVez);
         };
-
-        videoEl.addEventListener("loadeddata", aplicarTempo, { once: true });
-        videoEl.addEventListener("canplay", aplicarTempo, { once: true });
-      } else {
-        videoEl.play().catch(() => {});
+        videoEl.addEventListener("loadeddata", aplicarTempoUmaVez);
       }
+
+      videoEl.play().catch(() => {});
 
       salvarProgresso(serieAberta.titulo, indiceEpAtual, retomarSegundo);
       configurarBotaoContinuarModal();
