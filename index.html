@@ -264,6 +264,9 @@
 
     const API_URL = "https://seriesturcasnv.com/api/catalogo?t=" + Date.now() + (userId ? "&uid=" + userId : "");
 
+    // Status de Acesso do Usuário (liberado se autenticado como assinante)
+    let usuarioIsVip = false;
+
     // Progresso Local
     const CHAVE_HISTORICO = "nv_progresso_series";
 
@@ -417,6 +420,11 @@
         }
 
         const data = await res.json();
+        
+        // Verifica se a API informou o status VIP do usuário
+        if (data.usuario && typeof data.usuario.is_vip !== 'undefined') {
+          usuarioIsVip = !!data.usuario.is_vip;
+        }
         
         if (data.config) {
           if (data.config.titulo_app) document.getElementById("appTitulo").innerText = data.config.titulo_app;
@@ -645,6 +653,19 @@
       } else {
         eps.forEach((ep, index) => {
           const isAtivo = (index === indiceEpAtual);
+          const bloqueado = (ep.is_vip && !usuarioIsVip);
+
+          let textoTag = "ASSISTIR";
+          let estiloTag = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+
+          if (isAtivo) {
+            textoTag = "TOCANDO AGORA";
+            estiloTag = "text-amber-400 border-amber-400/40";
+          } else if (bloqueado) {
+            textoTag = `<i class="fa-solid fa-lock text-[9px] mr-1"></i> VIP`;
+            estiloTag = "text-amber-400 bg-amber-500/10 border-amber-500/30";
+          }
+
           const item = document.createElement("div");
           item.id = `ep-item-${index}`;
           item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition ${
@@ -656,8 +677,8 @@
               <span class="w-6 h-6 rounded ${isAtivo ? 'bg-amber-500 text-black font-extrabold' : 'bg-amber-500/20 text-amber-400 font-bold'} text-xs flex items-center justify-center">${ep.numero || (index + 1)}</span>
               <span class="text-xs font-bold text-white">${ep.titulo || 'Episódio ' + (ep.numero || (index + 1))}</span>
             </div>
-            <span class="text-[10px] font-bold ${isAtivo ? 'text-amber-400' : 'text-emerald-400 bg-emerald-500/10'} px-2 py-0.5 rounded border ${isAtivo ? 'border-amber-400/40' : 'border-emerald-500/20'}">
-              ${isAtivo ? 'TOCANDO AGORA' : 'ASSISTIR'}
+            <span class="text-[10px] font-bold ${estiloTag} px-2 py-0.5 rounded border flex items-center">
+              ${textoTag}
             </span>
           `;
           lista.appendChild(item);
@@ -665,11 +686,21 @@
       }
     }
 
-   function tocarEpisodio(index, retomarSegundo = 0) {
+    function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
-      indiceEpAtual = index;
       const ep = serieAberta.episodios[index];
+
+      // Bloqueio de segurança no frontend: se for VIP e o usuário não for assinante
+      if (ep.is_vip && !usuarioIsVip) {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
+        if (confirm("🔒 Este episódio é exclusivo para assinantes VIP! Deseja assinar para ter acesso imediato?")) {
+          abrirVip();
+        }
+        return;
+      }
+
+      indiceEpAtual = index;
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
       document.getElementById("avisoPlay").classList.add("hidden");
