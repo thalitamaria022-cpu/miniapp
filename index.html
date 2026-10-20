@@ -238,9 +238,33 @@
           <span id="textoBtnContinuarModal">Continuar de onde parou</span>
         </button>
       </div>
+
+      <!-- Abas de Temporadas -->
+      <div id="containerTemporadas" class="px-3 pt-2 pb-1 bg-[#111420] border-b border-gray-800 flex gap-2 overflow-x-auto hide-scrollbar hidden"></div>
       
       <!-- Lista de Episódios -->
       <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
+    </div>
+  </div>
+
+  <!-- Modal Aviso: Limite de Vagas Gratuitas Atingido (HTTP 429) -->
+  <div id="modalLimiteVagas" class="fixed inset-0 z-[100001] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[#141724] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl animate-fade-in">
+      <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-inner">
+        <i class="fa-solid fa-fire"></i>
+      </div>
+      <h3 class="text-base font-black text-white tracking-wide">Servidores Cheios no Grátis!</h3>
+      <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+        Todas as 10 vagas gratuitas simultâneas estão em uso agora. Assine o plano VIP para assistir imediatamente sem filas e com carregamento instantâneo!
+      </p>
+      <div class="mt-5 flex flex-col gap-2">
+        <button onclick="abrirVip()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition">
+          <i class="fa-solid fa-crown"></i> QUERO SER VIP AGORA
+        </button>
+        <button onclick="fecharModalLimite()" class="w-full py-2 rounded-xl bg-gray-800/80 hover:bg-gray-800 text-gray-300 font-bold text-xs active:scale-95 transition">
+          Tentar Mais Tarde
+        </button>
+      </div>
     </div>
   </div>
 
@@ -335,12 +359,33 @@
     let termoBusca = "";
     let serieAberta = null;
     let indiceEpAtual = -1;
+    let temporadaSelecionada = 1;
     let isFullscreen = false;
     let timerOcultarControles = null;
 
     const videoEl = document.getElementById("player");
 
+    // Tratamento de Erro ao Atingir o Limite de Vagas Simultâneas (HTTP 429)
+    videoEl.addEventListener("error", () => {
+      if (!usuarioIsVip) {
+        document.getElementById("modalLimiteVagas").classList.remove("hidden");
+        document.getElementById("modalLimiteVagas").classList.add("flex");
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
+      }
+    });
+
+    function fecharModalLimite() {
+      const modal = document.getElementById("modalLimiteVagas");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
     function gerenciarRetorno() {
+      const modalLimite = document.getElementById("modalLimiteVagas");
+      if (modalLimite && !modalLimite.classList.contains("hidden")) {
+        fecharModalLimite();
+        return;
+      }
       if (isFullscreen) {
         alternarTelaCheia();
       } else {
@@ -594,6 +639,14 @@
       });
     }
 
+    // Identifica o número da temporada de um episódio
+    function extrairTemporada(ep) {
+      if (ep.temporada) return parseInt(ep.temporada);
+      const str = (ep.titulo || "") + " " + (ep.numero || "");
+      const match = str.match(/(?:temp(?:orada)?|s|t)\s*[-_]?\s*(\d+)/i);
+      return match ? parseInt(match[1]) : 1;
+    }
+
     function abrirModal(s) {
       serieAberta = s;
       indiceEpAtual = -1;
@@ -613,6 +666,12 @@
       if (isFullscreen) alternarTelaCheia();
 
       configurarBotaoContinuarModal();
+      
+      // Configurar temporadas e carregar lista
+      const temporadasDisponiveis = obterTemporadasDaSerie(s);
+      temporadaSelecionada = temporadasDisponiveis.length > 0 ? temporadasDisponiveis[0] : 1;
+      
+      renderizarSeletorTemporadas(temporadasDisponiveis);
       renderizarListaEpisodios();
 
       const m = document.getElementById("modalPlayer");
@@ -622,6 +681,43 @@
       if (tg?.BackButton) {
         tg.BackButton.show();
       }
+    }
+
+    function obterTemporadasDaSerie(s) {
+      if (!s || !s.episodios) return [];
+      const setTemps = new Set();
+      s.episodios.forEach(ep => {
+        setTemps.add(extrairTemporada(ep));
+      });
+      return Array.from(setTemps).sort((a, b) => a - b);
+    }
+
+    function renderizarSeletorTemporadas(temporadas) {
+      const container = document.getElementById("containerTemporadas");
+      container.innerHTML = "";
+
+      // Se só houver 1 temporada ou nenhuma, oculta a barra de abas
+      if (temporadas.length <= 1) {
+        container.classList.add("hidden");
+        return;
+      }
+
+      temporadas.forEach(temp => {
+        const btn = document.createElement("button");
+        const ativo = (temp === temporadaSelecionada);
+        btn.className = `px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap active:scale-95 transition ${
+          ativo ? 'bg-amber-500 text-black shadow' : 'bg-gray-800 text-gray-300 border border-gray-700'
+        }`;
+        btn.innerText = `Temporada ${temp}`;
+        btn.onclick = () => {
+          temporadaSelecionada = temp;
+          renderizarSeletorTemporadas(temporadas);
+          renderizarListaEpisodios();
+        };
+        container.appendChild(btn);
+      });
+
+      container.classList.remove("hidden");
     }
 
     function configurarBotaoContinuarModal() {
@@ -647,11 +743,19 @@
       const lista = document.getElementById("mEpsList");
       lista.innerHTML = "";
 
-      const eps = serieAberta?.episodios || [];
-      if (eps.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado ainda.</p>";
+      const todosEps = serieAberta?.episodios || [];
+      const temporadasDisponiveis = obterTemporadasDaSerie(serieAberta);
+
+      // Se existirem múltiplas temporadas, filtra pela temporada ativa
+      const epsFiltrados = temporadasDisponiveis.length > 1
+        ? todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx })).filter(ep => extrairTemporada(ep) === temporadaSelecionada)
+        : todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx }));
+
+      if (epsFiltrados.length === 0) {
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado nesta temporada.</p>";
       } else {
-        eps.forEach((ep, index) => {
+        epsFiltrados.forEach((ep) => {
+          const index = ep.indiceOriginal;
           const isAtivo = (index === indiceEpAtual);
           const bloqueado = (ep.is_vip && !usuarioIsVip);
 
@@ -703,11 +807,21 @@
       indiceEpAtual = index;
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
+      // Se o episódio pertence a outra temporada, muda a aba ativa para sincronizar
+      const tempDoEp = extrairTemporada(ep);
+      if (temporadaSelecionada !== tempDoEp) {
+        temporadaSelecionada = tempDoEp;
+        renderizarSeletorTemporadas(obterTemporadasDaSerie(serieAberta));
+      }
+
       document.getElementById("avisoPlay").classList.add("hidden");
 
+      // Monta URL com UID e parâmetro vip para o backend respeitar o limite de 10 vagas
       let videoUrl = ep.url;
+      const separador = videoUrl.includes("?") ? "&" : "?";
+      videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
       if (userId) {
-        videoUrl += (videoUrl.includes("?") ? "&" : "?") + "uid=" + encodeURIComponent(userId);
+        videoUrl += `&uid=${encodeURIComponent(userId)}`;
       }
 
       document.getElementById("playerSrc").src = videoUrl;
