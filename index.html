@@ -6,6 +6,7 @@
   <title>Séries Turcas NV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { 
@@ -790,12 +791,11 @@
       }
     }
 
-    function tocarEpisodio(index, retomarSegundo = 0) {
+   function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       const ep = serieAberta.episodios[index];
 
-      // Bloqueio de segurança no frontend: se for VIP e o usuário não for assinante
       if (ep.is_vip && !usuarioIsVip) {
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
         if (confirm("🔒 Este episódio é exclusivo para assinantes VIP! Deseja assinar para ter acesso imediato?")) {
@@ -807,7 +807,6 @@
       indiceEpAtual = index;
       const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
 
-      // Se o episódio pertence a outra temporada, muda a aba ativa para sincronizar
       const tempDoEp = extrairTemporada(ep);
       if (temporadaSelecionada !== tempDoEp) {
         temporadaSelecionada = tempDoEp;
@@ -816,7 +815,6 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // Monta URL com UID e parâmetro vip para o backend respeitar o limite de vagas
       let videoUrl = ep.url;
       const separador = videoUrl.includes("?") ? "&" : "?";
       videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
@@ -824,30 +822,54 @@
         videoUrl += `&uid=${encodeURIComponent(userId)}`;
       }
 
-      document.getElementById("playerSrc").src = videoUrl;
       document.getElementById("infoEpAtual").innerText = epTexto;
-
       document.getElementById("overlaySerieNome").innerText = serieAberta.titulo;
       document.getElementById("overlayEpNome").innerText = epTexto;
       
       mostrarControlesImersivos();
-      
-      videoEl.load();
 
-      // Aplica o tempo salvo de forma estável após carregar o primeiro frame
-      if (retomarSegundo > 5) {
-        const aplicarTempoUmaVez = () => {
-          try {
-            if (videoEl.duration && retomarSegundo < videoEl.duration - 5) {
-              videoEl.currentTime = retomarSegundo;
+      // Reprodução com suporte a HLS Criptografado e Fallback direto
+      if (videoUrl.includes(".m3u8")) {
+        if (Hls.isSupported()) {
+          if (window.hlsPlayer) {
+            window.hlsPlayer.destroy();
+          }
+          const hls = new Hls({
+            xhrSetup: function (xhr, url) {
+              xhr.setRequestHeader('Sec-Fetch-Mode', 'cors');
             }
-          } catch(e) {}
-          videoEl.removeEventListener("loadeddata", aplicarTempoUmaVez);
-        };
-        videoEl.addEventListener("loadeddata", aplicarTempoUmaVez);
-      }
+          });
+          hls.loadSource(videoUrl);
+          hls.attachMedia(videoEl);
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            if (retomarSegundo > 5) videoEl.currentTime = retomarSegundo;
+            videoEl.play().catch(() => {});
+          });
+          window.hlsPlayer = hls;
+        } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+          videoEl.src = videoUrl;
+          if (retomarSegundo > 5) videoEl.currentTime = retomarSegundo;
+          videoEl.play().catch(() => {});
+        }
+      } else {
+        // Reprodução padrão para episódios MP4 já existentes
+        document.getElementById("playerSrc").src = videoUrl;
+        videoEl.load();
 
-      videoEl.play().catch(() => {});
+        if (retomarSegundo > 5) {
+          const aplicarTempoUmaVez = () => {
+            try {
+              if (videoEl.duration && retomarSegundo < videoEl.duration - 5) {
+                videoEl.currentTime = retomarSegundo;
+              }
+            } catch(e) {}
+            videoEl.removeEventListener("loadeddata", aplicarTempoUmaVez);
+          };
+          videoEl.addEventListener("loadeddata", aplicarTempoUmaVez);
+        }
+
+        videoEl.play().catch(() => {});
+      }
 
       salvarProgresso(serieAberta.titulo, indiceEpAtual, retomarSegundo);
       configurarBotaoContinuarModal();
