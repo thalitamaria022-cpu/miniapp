@@ -255,14 +255,14 @@
       </div>
       <h3 class="text-base font-black text-white tracking-wide">Servidores Cheios no Grátis!</h3>
       <p class="text-xs text-gray-300 mt-2 leading-relaxed">
-        Todas as 10 vagas gratuitas simultâneas estão em uso agora. Assine o plano VIP para assistir imediatamente sem filas e com carregamento instantâneo!
+        Todos os acessos gratuitos estão ocupados no momento. Torne-se VIP para assistir de imediato com velocidade máxima!
       </p>
       <div class="mt-5 flex flex-col gap-2">
         <button onclick="abrirVip()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition">
           <i class="fa-solid fa-crown"></i> QUERO SER VIP AGORA
         </button>
         <button onclick="fecharModalLimite()" class="w-full py-2 rounded-xl bg-gray-800/80 hover:bg-gray-800 text-gray-300 font-bold text-xs active:scale-95 transition">
-          Tentar Mais Tarde
+          Tentar mais tarde
         </button>
       </div>
     </div>
@@ -816,7 +816,7 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // Monta URL com UID e parâmetro vip para o backend respeitar o limite de 10 vagas
+      // Monta URL com UID e parâmetro vip para o backend respeitar o limite de vagas
       let videoUrl = ep.url;
       const separador = videoUrl.includes("?") ? "&" : "?";
       videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
