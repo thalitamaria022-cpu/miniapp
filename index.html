@@ -163,88 +163,101 @@
     </main>
   </div>
 
-  <!-- Modal Detalhes e Player -->
-  <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end">
-    <div class="app-container w-full bg-[#111420] border-t border-gray-800 rounded-t-2xl max-h-[90vh] flex flex-col overflow-hidden">
-      <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
-        <h4 id="mTitulo" class="font-bold text-sm text-white truncate pr-2"></h4>
-        <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition">✕</button>
-      </div>
-
-      <!-- Container do Vídeo -->
-      <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
-        <video 
-          id="player" 
-          controls 
-          playsinline 
-          webkit-playsinline 
-          x5-playsinline 
-          preload="metadata" 
-          controlsList="nodownload noplaybackrate" 
-          disablePictureInPicture
-          class="w-full h-full max-h-[35vh]" 
-          oncontextmenu="return false;">
-          <source id="playerSrc" src="" type="video/mp4">
-        </video>
-
-        <!-- Marca d'água -->
-        <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
-
-        <!-- Overlay Episódio -->
-        <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
-          <div class="flex flex-col">
-            <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
-            <span id="overlayEpNome" class="text-xs sm:text-sm font-bold text-white drop-shadow"></span>
-          </div>
-          <span class="text-[10px] bg-black/60 border border-gray-700/80 text-gray-300 px-2 py-0.5 rounded-full backdrop-blur">
-            HD
-          </span>
-        </div>
-
-        <!-- Botão Sair da Tela Cheia -->
-        <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
-          <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
-        </button>
-
-        <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 pointer-events-none">
-          <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2"></i>
-          <p class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
-        </div>
-      </div>
-
-      <!-- Barra de Navegação -->
-      <div class="px-3 py-2 bg-[#161a29] border-b border-gray-800 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5">
-          <button id="btnEpAnterior" onclick="mudarEpisodio(-1)" disabled class="px-2.5 py-1 rounded bg-gray-800 text-gray-400 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
-            <i class="fa-solid fa-backward-step"></i> Anterior
-          </button>
-          <button id="btnEpProximo" onclick="mudarEpisodio(1)" disabled class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
-            Próximo <i class="fa-solid fa-forward-step"></i>
-          </button>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] text-gray-300 font-medium truncate max-w-[130px] sm:max-w-xs" id="infoEpAtual">Selecione o episódio</span>
-          <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded flex items-center gap-1.5 active:scale-95 transition shadow-sm">
-            <i class="fa-solid fa-expand"></i> Expandir Tela
-          </button>
-        </div>
-      </div>
-
-      <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 overflow-y-auto" id="mSinopse"></div>
-
-      <!-- Botão em Destaque: Continuar do Episódio X -->
-      <div id="containerBtnContinuarModal" class="p-2.5 bg-[#141724] border-b border-gray-800/80 hidden">
-        <button id="btnContinuarModal" class="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition">
-          <i class="fa-solid fa-circle-play text-sm"></i>
-          <span id="textoBtnContinuarModal">Continuar de onde parou</span>
-        </button>
-      </div>
-
-      <!-- Abas de Temporadas -->
-      <div id="containerTemporadas" class="px-3 pt-2 pb-1 bg-[#111420] border-b border-gray-800 flex gap-2 overflow-x-auto hide-scrollbar hidden"></div>
+  <!-- Modal Detalhes e Player (Otimizado para Celular e Notebook/Desktop) -->
+  <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end md:justify-center md:items-center p-0 md:p-4">
+    <div class="app-container w-full bg-[#111420] border-t md:border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[95vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       
-      <!-- Lista de Episódios -->
-      <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
+      <!-- Cabeçalho do Modal -->
+      <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between bg-[#141724]">
+        <h4 id="mTitulo" class="font-bold text-sm text-white truncate pr-2"></h4>
+        <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition hover:bg-gray-700">✕</button>
+      </div>
+
+      <!-- Corpo Principal do Modal com Layout Responsivo (2 Colunas em telas médias/grandes) -->
+      <div class="flex flex-col md:grid md:grid-cols-12 flex-1 overflow-hidden">
+        
+        <!-- Coluna Esquerda: Player e Controles do Vídeo -->
+        <div class="md:col-span-8 flex flex-col bg-black">
+          <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
+            <video 
+              id="player" 
+              controls 
+              playsinline 
+              webkit-playsinline 
+              x5-playsinline 
+              preload="metadata" 
+              controlsList="nodownload noplaybackrate" 
+              disablePictureInPicture
+              class="w-full h-full max-h-[40vh] md:max-h-[58vh]" 
+              oncontextmenu="return false;">
+              <source id="playerSrc" src="" type="video/mp4">
+            </video>
+
+            <!-- Marca d'água -->
+            <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
+
+            <!-- Overlay Episódio -->
+            <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
+              <div class="flex flex-col">
+                <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
+                <span id="overlayEpNome" class="text-xs sm:text-sm font-bold text-white drop-shadow"></span>
+              </div>
+              <span class="text-[10px] bg-black/60 border border-gray-700/80 text-gray-300 px-2 py-0.5 rounded-full backdrop-blur">
+                HD
+              </span>
+            </div>
+
+            <!-- Botão Sair da Tela Cheia -->
+            <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
+              <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
+            </button>
+
+            <!-- Placeholder Central -->
+            <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 cursor-pointer" onclick="iniciarReproducaoImediata()">
+              <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2 transition hover:scale-110"></i>
+              <p id="textoAvisoPlay" class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
+            </div>
+          </div>
+
+          <!-- Barra de Navegação Rápida -->
+          <div class="px-3 py-2 bg-[#161a29] border-t border-b border-gray-800 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5" id="blocoBotoesNavegacao">
+              <button id="btnEpAnterior" onclick="mudarEpisodio(-1)" disabled class="px-2.5 py-1 rounded bg-gray-800 text-gray-400 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
+                <i class="fa-solid fa-backward-step"></i> Anterior
+              </button>
+              <button id="btnEpProximo" onclick="mudarEpisodio(1)" disabled class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
+                Próximo <i class="fa-solid fa-forward-step"></i>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-gray-300 font-medium truncate max-w-[130px] sm:max-w-xs" id="infoEpAtual">Selecione o episódio</span>
+              <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded flex items-center gap-1.5 active:scale-95 transition shadow-sm">
+                <i class="fa-solid fa-expand"></i> Expandir Tela
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Sinopse, Botão Continuar e Lista -->
+        <div class="md:col-span-4 flex flex-col bg-[#111420] border-t md:border-t-0 md:border-l border-gray-800 overflow-hidden max-h-[45vh] md:max-h-full">
+          <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 md:max-h-36 overflow-y-auto" id="mSinopse"></div>
+
+          <!-- Botão em Destaque: Continuar / Assistir -->
+          <div id="containerBtnContinuarModal" class="p-2.5 bg-[#141724] border-b border-gray-800/80">
+            <button id="btnContinuarModal" class="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition">
+              <i class="fa-solid fa-circle-play text-sm"></i>
+              <span id="textoBtnContinuarModal">Continuar de onde parou</span>
+            </button>
+          </div>
+
+          <!-- Abas de Temporadas -->
+          <div id="containerTemporadas" class="px-3 pt-2 pb-1 bg-[#111420] border-b border-gray-800 flex gap-2 overflow-x-auto hide-scrollbar hidden"></div>
+          
+          <!-- Lista de Episódios / Filme Completo -->
+          <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -289,10 +302,7 @@
 
     const API_URL = "https://seriesturcasnv.com/api/catalogo?t=" + Date.now() + (userId ? "&uid=" + userId : "");
 
-    // Status de Acesso do Usuário (liberado se autenticado como assinante)
     let usuarioIsVip = false;
-
-    // Progresso Local
     const CHAVE_HISTORICO = "nv_progresso_series";
 
     function obterHistorico() {
@@ -366,7 +376,6 @@
 
     const videoEl = document.getElementById("player");
 
-    // Tratamento de Erro ao Atingir o Limite de Vagas Simultâneas (HTTP 429)
     videoEl.addEventListener("error", () => {
       if (!usuarioIsVip) {
         document.getElementById("modalLimiteVagas").classList.remove("hidden");
@@ -467,7 +476,6 @@
 
         const data = await res.json();
         
-        // Verifica se a API informou o status VIP do usuário
         if (data.usuario && typeof data.usuario.is_vip !== 'undefined') {
           usuarioIsVip = !!data.usuario.is_vip;
         }
@@ -513,7 +521,10 @@
         const info = hist[titulo];
         const epIndex = info.indiceEp < s.episodios.length ? info.indiceEp : 0;
         const ep = s.episodios[epIndex];
-        const rotuloEp = ep ? (ep.numero ? `Ep. ${ep.numero}` : `Ep. ${epIndex + 1}`) : `Ep. 1`;
+        
+        const cat = (s.categoria || "").toLowerCase();
+        const ehFilme = cat.includes("filme");
+        const rotuloEp = ehFilme ? "Filme Completo" : (ep ? (ep.numero ? `Ep. ${ep.numero}` : `Ep. ${epIndex + 1}`) : `Ep. 1`);
 
         const card = document.createElement("div");
         card.className = "flex-shrink-0 w-32 bg-[#141724] border border-amber-500/40 rounded-xl overflow-hidden cursor-pointer shadow-md active:scale-95 transition flex flex-col";
@@ -640,7 +651,6 @@
       });
     }
 
-    // Identifica o número da temporada de um episódio
     function extrairTemporada(ep) {
       if (ep.temporada) return parseInt(ep.temporada);
       const str = (ep.titulo || "") + " " + (ep.numero || "");
@@ -648,13 +658,28 @@
       return match ? parseInt(match[1]) : 1;
     }
 
+    function iniciarReproducaoImediata() {
+      if (!serieAberta || !serieAberta.episodios || serieAberta.episodios.length === 0) return;
+      const hist = obterHistorico();
+      const info = hist[serieAberta.titulo];
+      const epIndex = (info && info.indiceEp < serieAberta.episodios.length) ? info.indiceEp : 0;
+      tocarEpisodio(epIndex, info ? info.tempo : 0);
+    }
+
     function abrirModal(s) {
       serieAberta = s;
       indiceEpAtual = -1;
+
+      const cat = (s.categoria || "").toLowerCase();
+      const ehFilme = cat.includes("filme");
+
       document.getElementById("mTitulo").innerText = s.titulo;
       document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
-      document.getElementById("infoEpAtual").innerText = "Selecione o episódio";
       
+      // Ajusta textos de aviso conforme o tipo
+      document.getElementById("infoEpAtual").innerText = ehFilme ? "Filme Completo" : "Selecione o episódio";
+      document.getElementById("textoAvisoPlay").innerText = ehFilme ? "Clique para iniciar o filme" : "Escolha um episódio abaixo para reproduzir";
+
       document.getElementById("overlaySerieNome").innerText = s.titulo;
       document.getElementById("overlayEpNome").innerText = "";
       document.getElementById("overlayEpisodio").classList.add("oculto");
@@ -663,12 +688,19 @@
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
 
+      // Esconde navegação anterior/próximo se for filme
+      const navEps = document.getElementById("blocoBotoesNavegacao");
+      if (ehFilme) {
+        navEps.classList.add("hidden");
+      } else {
+        navEps.classList.remove("hidden");
+      }
+
       atualizarBotoesNavegacao();
       if (isFullscreen) alternarTelaCheia();
 
       configurarBotaoContinuarModal();
       
-      // Configurar temporadas e carregar lista
       const temporadasDisponiveis = obterTemporadasDaSerie(s);
       temporadaSelecionada = temporadasDisponiveis.length > 0 ? temporadasDisponiveis[0] : 1;
       
@@ -697,8 +729,8 @@
       const container = document.getElementById("containerTemporadas");
       container.innerHTML = "";
 
-      // Se só houver 1 temporada ou nenhuma, oculta a barra de abas
-      if (temporadas.length <= 1) {
+      const cat = (serieAberta?.categoria || "").toLowerCase();
+      if (cat.includes("filme") || temporadas.length <= 1) {
         container.classList.add("hidden");
         return;
       }
@@ -728,17 +760,20 @@
 
       const hist = obterHistorico();
       const info = hist[serieAberta.titulo];
+      const cat = (serieAberta.categoria || "").toLowerCase();
+      const ehFilme = cat.includes("filme");
+
+      // Sempre deixa o botão visível no notebook e no celular
+      containerBtn.classList.remove("hidden");
 
       if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
         const epSalvo = serieAberta.episodios[info.indiceEp];
         const numEp = epSalvo.numero || (info.indiceEp + 1);
-       const cat = (serieAberta.categoria || "").toLowerCase();
-        const ehFilme = cat.includes("filme") || (epSalvo.titulo && epSalvo.titulo.toLowerCase().includes("filme"));
         textoBtn.innerText = ehFilme ? "Continuar de onde parou" : `Continuar do Episódio ${numEp}`;
         btn.onclick = () => tocarEpisodio(info.indiceEp, info.tempo || 0);
-        containerBtn.classList.remove("hidden");
       } else {
-        containerBtn.classList.add("hidden");
+        textoBtn.innerText = ehFilme ? "Assistir Filme" : "Começar a Assistir";
+        btn.onclick = () => tocarEpisodio(0, 0);
       }
     }
 
@@ -747,15 +782,16 @@
       lista.innerHTML = "";
 
       const todosEps = serieAberta?.episodios || [];
+      const cat = (serieAberta?.categoria || "").toLowerCase();
+      const ehFilme = cat.includes("filme");
       const temporadasDisponiveis = obterTemporadasDaSerie(serieAberta);
 
-      // Se existirem múltiplas temporadas, filtra pela temporada ativa
-      const epsFiltrados = temporadasDisponiveis.length > 1
+      const epsFiltrados = (!ehFilme && temporadasDisponiveis.length > 1)
         ? todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx })).filter(ep => extrairTemporada(ep) === temporadaSelecionada)
         : todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx }));
 
       if (epsFiltrados.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado nesta temporada.</p>";
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum vídeo publicado.</p>";
       } else {
         epsFiltrados.forEach((ep) => {
           const index = ep.indiceOriginal;
@@ -775,14 +811,18 @@
 
           const item = document.createElement("div");
           item.id = `ep-item-${index}`;
-          item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition ${
+          item.className = `p-2.5 rounded-lg border flex items-center justify-between cursor-pointer active:scale-98 transition hover:border-amber-500/50 ${
             isAtivo ? 'bg-amber-500/20 border-amber-500/60' : 'bg-gray-800/80 border-gray-700'
           }`;
           item.onclick = () => tocarEpisodio(index);
+
+          const rotuloItem = ehFilme ? "Filme Completo" : (ep.titulo || 'Episódio ' + (ep.numero || (index + 1)));
+          const badgeIcon = ehFilme ? `<i class="fa-solid fa-film text-[11px]"></i>` : (ep.numero || (index + 1));
+
           item.innerHTML = `
             <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded ${isAtivo ? 'bg-amber-500 text-black font-extrabold' : 'bg-amber-500/20 text-amber-400 font-bold'} text-xs flex items-center justify-center">${ep.numero || (index + 1)}</span>
-              <span class="text-xs font-bold text-white">${ep.titulo || 'Episódio ' + (ep.numero || (index + 1))}</span>
+              <span class="w-6 h-6 rounded ${isAtivo ? 'bg-amber-500 text-black font-extrabold' : 'bg-amber-500/20 text-amber-400 font-bold'} text-xs flex items-center justify-center">${badgeIcon}</span>
+              <span class="text-xs font-bold text-white">${rotuloItem}</span>
             </div>
             <span class="text-[10px] font-bold ${estiloTag} px-2 py-0.5 rounded border flex items-center">
               ${textoTag}
@@ -793,26 +833,30 @@
       }
     }
 
-   function tocarEpisodio(index, retomarSegundo = 0) {
+    function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       const ep = serieAberta.episodios[index];
+      const cat = (serieAberta.categoria || "").toLowerCase();
+      const ehFilme = cat.includes("filme");
 
       if (ep.is_vip && !usuarioIsVip) {
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
-        if (confirm("🔒 Este episódio é exclusivo para assinantes VIP! Deseja assinar para ter acesso imediato?")) {
+        if (confirm("🔒 Este conteúdo é exclusivo para assinantes VIP! Deseja assinar para ter acesso imediato?")) {
           abrirVip();
         }
         return;
       }
 
       indiceEpAtual = index;
-      const epTexto = ep.titulo || `Episódio ${ep.numero || (index + 1)}`;
+      const epTexto = ehFilme ? "Filme Completo" : (ep.titulo || `Episódio ${ep.numero || (index + 1)}`);
 
-      const tempDoEp = extrairTemporada(ep);
-      if (temporadaSelecionada !== tempDoEp) {
-        temporadaSelecionada = tempDoEp;
-        renderizarSeletorTemporadas(obterTemporadasDaSerie(serieAberta));
+      if (!ehFilme) {
+        const tempDoEp = extrairTemporada(ep);
+        if (temporadaSelecionada !== tempDoEp) {
+          temporadaSelecionada = tempDoEp;
+          renderizarSeletorTemporadas(obterTemporadasDaSerie(serieAberta));
+        }
       }
 
       document.getElementById("avisoPlay").classList.add("hidden");
@@ -830,7 +874,6 @@
       
       mostrarControlesImersivos();
 
-      // Reprodução com suporte a HLS Criptografado e Fallback direto
       if (videoUrl.includes(".m3u8")) {
         if (Hls.isSupported()) {
           if (window.hlsPlayer) {
@@ -854,7 +897,6 @@
           videoEl.play().catch(() => {});
         }
       } else {
-        // Reprodução padrão para episódios MP4 já existentes
         document.getElementById("playerSrc").src = videoUrl;
         videoEl.load();
 
@@ -896,6 +938,9 @@
       const btnAnt = document.getElementById("btnEpAnterior");
       const btnProx = document.getElementById("btnEpProximo");
       const total = serieAberta?.episodios?.length || 0;
+      const cat = (serieAberta?.categoria || "").toLowerCase();
+
+      if (cat.includes("filme")) return;
 
       if (indiceEpAtual <= 0) {
         btnAnt.disabled = true;
