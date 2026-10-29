@@ -51,7 +51,7 @@
     }
 
     .controles-imersivos {
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
     }
     .controles-imersivos.oculto {
       opacity: 0 !important;
@@ -59,21 +59,46 @@
       pointer-events: none !important;
     }
 
+    /* Marca d'água Anti-Gravação ampliada no Notebook/PC */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
       z-index: 35;
-      color: rgba(255, 255, 255, 0.28) !important;
+      color: rgba(255, 255, 255, 0.38) !important;
       background: transparent !important;
       box-shadow: none !important;
-      text-shadow: none !important;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6) !important;
       outline: none !important;
       border: none !important;
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.3px;
       transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
+    }
+    @media (min-width: 768px) {
+      .watermark-antigravacao {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.6px !important;
+        color: rgba(255, 255, 255, 0.42) !important;
+      }
+    }
+
+    /* Estilo dos Botões de Pulo Netflix */
+    .btn-skip-netflix {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .btn-skip-netflix:hover {
+      background: rgba(0, 0, 0, 0.85);
+      border-color: rgba(245, 158, 11, 0.7);
+      transform: scale(1.08);
+    }
+    .btn-skip-netflix:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -173,12 +198,13 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition hover:bg-gray-700">✕</button>
       </div>
 
-      <!-- Corpo Principal do Modal com Layout Responsivo (2 Colunas em telas médias/grandes) -->
+      <!-- Corpo Principal do Modal com Layout Responsivo -->
       <div class="flex flex-col md:grid md:grid-cols-12 flex-1 overflow-hidden">
         
         <!-- Coluna Esquerda: Player e Controles do Vídeo -->
         <div class="md:col-span-8 flex flex-col bg-black">
-          <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden" onclick="acionarInteracaoTela()" oncontextmenu="return false;">
+          <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden group" onclick="acionarInteracaoTela()" onmousemove="acionarInteracaoTela()" oncontextmenu="return false;">
+            
             <video 
               id="player" 
               controls 
@@ -193,8 +219,30 @@
               <source id="playerSrc" src="" type="video/mp4">
             </video>
 
-            <!-- Marca d'água -->
+            <!-- Marca d'água Ampliada no Desktop/Notebook -->
             <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
+
+            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) -->
+            <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 flex items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
+              
+              <!-- Retroceder 10 Segundos -->
+              <button onclick="pularTempo(-10); event.stopPropagation();" title="Retroceder 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
+                <i class="fa-solid fa-rotate-left text-sm sm:text-base"></i>
+                <span class="text-[9px] font-extrabold mt-0.5 leading-none">10s</span>
+              </button>
+
+              <!-- Play / Pause Rápido -->
+              <button onclick="alternarPlayPause(); event.stopPropagation();" id="btnPlayPauseCentral" title="Play / Pausar" class="pointer-events-auto btn-skip-netflix w-13 h-13 sm:w-16 sm:h-16 rounded-full text-amber-400 flex items-center justify-center shadow-2xl text-lg sm:text-2xl border-amber-500/40">
+                <i id="iconePlayPauseCentral" class="fa-solid fa-play ml-0.5"></i>
+              </button>
+
+              <!-- Avançar 10 Segundos -->
+              <button onclick="pularTempo(10); event.stopPropagation();" title="Avançar 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
+                <i class="fa-solid fa-rotate-right text-sm sm:text-base"></i>
+                <span class="text-[9px] font-extrabold mt-0.5 leading-none">10s</span>
+              </button>
+
+            </div>
 
             <!-- Overlay Episódio -->
             <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
@@ -333,7 +381,7 @@
       if (user) {
         textoIdentificador = (user.username ? `@${user.username}` : user.first_name || "Membro") + ` (ID: ${user.id})`;
       } else if (userId) {
-        textoIdentificador = `ID: ${userId}`;
+        textoIdentificador = `@ThalitaMSA (ID: ${userId})`;
       } else {
         textoIdentificador = "Séries Turcas NV";
       }
@@ -358,10 +406,24 @@
       }, 10000);
     }
 
-    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    // Atalhos do Teclado para PC/Notebook (← / → para pular 10s e Espaço para Play/Pause)
     document.addEventListener("keydown", (e) => {
       if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
         e.preventDefault();
+      }
+
+      const modalAberto = !document.getElementById("modalPlayer").classList.contains("hidden");
+      if (modalAberto && indiceEpAtual >= 0) {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          pularTempo(-10);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          pularTempo(10);
+        } else if (e.key === " " || e.code === "Space") {
+          e.preventDefault();
+          alternarPlayPause();
+        }
       }
     });
 
@@ -416,15 +478,43 @@
     });
 
     videoEl.addEventListener("play", () => {
+      atualizarIconePlayPause(true);
       resetarTimerControles();
     });
 
     videoEl.addEventListener("pause", () => {
+      atualizarIconePlayPause(false);
       mostrarControlesImersivos(true);
       if (serieAberta && indiceEpAtual >= 0) {
         salvarProgresso(serieAberta.titulo, indiceEpAtual, videoEl.currentTime);
       }
     });
+
+    function atualizarIconePlayPause(rodando) {
+      const icone = document.getElementById("iconePlayPauseCentral");
+      if (!icone) return;
+      if (rodando) {
+        icone.className = "fa-solid fa-pause";
+      } else {
+        icone.className = "fa-solid fa-play ml-0.5";
+      }
+    }
+
+    function alternarPlayPause() {
+      if (videoEl.paused) {
+        videoEl.play().catch(() => {});
+      } else {
+        videoEl.pause();
+      }
+      acionarInteracaoTela();
+    }
+
+    function pularTempo(segundos) {
+      if (!videoEl || isNaN(videoEl.duration)) return;
+      videoEl.currentTime = Math.max(0, Math.min(videoEl.duration, videoEl.currentTime + segundos));
+      acionarInteracaoTela();
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+    }
 
     function acionarInteracaoTela() {
       mostrarControlesImersivos();
@@ -436,8 +526,11 @@
       
       const overlay = document.getElementById("overlayEpisodio");
       const btnSair = document.getElementById("btnSairFullscreen");
+      const controlesNetflix = document.getElementById("controlesNetflix");
 
       overlay.classList.remove("oculto");
+      controlesNetflix.classList.remove("oculto");
+
       if (isFullscreen) {
         btnSair.classList.remove("oculto");
       }
@@ -447,6 +540,7 @@
       if (!manterFixo && !videoEl.paused) {
         timerOcultarControles = setTimeout(() => {
           overlay.classList.add("oculto");
+          controlesNetflix.classList.add("oculto");
           if (isFullscreen) {
             btnSair.classList.add("oculto");
           }
@@ -459,6 +553,7 @@
       if (!videoEl.paused) {
         timerOcultarControles = setTimeout(() => {
           document.getElementById("overlayEpisodio").classList.add("oculto");
+          document.getElementById("controlesNetflix").classList.add("oculto");
           if (isFullscreen) {
             document.getElementById("btnSairFullscreen").classList.add("oculto");
           }
@@ -676,7 +771,6 @@
       document.getElementById("mTitulo").innerText = s.titulo;
       document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
       
-      // Ajusta textos de aviso conforme o tipo
       document.getElementById("infoEpAtual").innerText = ehFilme ? "Filme Completo" : "Selecione o episódio";
       document.getElementById("textoAvisoPlay").innerText = ehFilme ? "Clique para iniciar o filme" : "Escolha um episódio abaixo para reproduzir";
 
@@ -687,8 +781,8 @@
       videoEl.pause();
       document.getElementById("playerSrc").src = "";
       document.getElementById("avisoPlay").classList.remove("hidden");
+      atualizarIconePlayPause(false);
 
-      // Esconde navegação anterior/próximo se for filme
       const navEps = document.getElementById("blocoBotoesNavegacao");
       if (ehFilme) {
         navEps.classList.add("hidden");
@@ -763,7 +857,6 @@
       const cat = (serieAberta.categoria || "").toLowerCase();
       const ehFilme = cat.includes("filme");
 
-      // Sempre deixa o botão visível no notebook e no celular
       containerBtn.classList.remove("hidden");
 
       if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
