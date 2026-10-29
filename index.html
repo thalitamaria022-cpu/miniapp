@@ -59,33 +59,33 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água Anti-Gravação: Sem Sombra, Plana e Visível */
+    /* Marca d'água Anti-Gravação: Translúcida, Discreta e Sem Sombra */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
       z-index: 35;
-      color: rgba(255, 255, 255, 0.45) !important;
+      color: rgba(255, 255, 255, 0.30) !important;
       background: transparent !important;
       box-shadow: none !important;
       text-shadow: none !important;
       outline: none !important;
       border: none !important;
-      font-size: 13px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.5px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.4px !important;
       transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
     }
     @media (min-width: 768px) {
       .watermark-antigravacao {
-        font-size: 19px !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.8px !important;
-        color: rgba(255, 255, 255, 0.40) !important;
+        font-size: 17px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.6px !important;
+        color: rgba(255, 255, 255, 0.28) !important;
       }
     }
 
-    /* Botões Netflix: Ocultos no Celular e Visíveis Exclusivamente em Computador/Notebook */
+    /* Botões Netflix: Ocultos no Telemóvel e Visíveis Exclusivamente em Computador/Notebook */
     #controlesNetflix {
       display: none !important;
     }
@@ -197,7 +197,7 @@
     </main>
   </div>
 
-  <!-- Modal Detalhes e Player (Otimizado para Celular e Notebook/Desktop) -->
+  <!-- Modal Detalhes e Player (Otimizado para Telemóvel e Notebook/Desktop) -->
   <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end md:justify-center md:items-center p-0 md:p-4">
     <div class="app-container w-full bg-[#111420] border-t md:border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[95vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       
@@ -228,10 +228,10 @@
               <source id="playerSrc" src="" type="video/mp4">
             </video>
 
-            <!-- Marca d'água Translúcida e Nítida -->
+            <!-- Marca d'água Translúcida e Discreta -->
             <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) - Apenas em Telas Maiores -->
+            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) - Apenas em Computador/Notebook -->
             <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
               
               <!-- Retroceder 10 Segundos -->
