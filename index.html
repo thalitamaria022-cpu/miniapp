@@ -59,34 +59,42 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água Anti-Gravação: Limpa, Sem Sombra e Translúcida */
+    /* Marca d'água Anti-Gravação: Sem Sombra, Plana e Visível */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
       z-index: 35;
-      color: rgba(255, 255, 255, 0.25) !important;
+      color: rgba(255, 255, 255, 0.45) !important;
       background: transparent !important;
       box-shadow: none !important;
       text-shadow: none !important;
       outline: none !important;
       border: none !important;
       font-size: 13px !important;
-      font-weight: 600 !important;
+      font-weight: 700 !important;
       letter-spacing: 0.5px !important;
-      mix-blend-mode: overlay;
       transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
     }
     @media (min-width: 768px) {
       .watermark-antigravacao {
         font-size: 19px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
         letter-spacing: 0.8px !important;
-        color: rgba(255, 255, 255, 0.22) !important;
+        color: rgba(255, 255, 255, 0.40) !important;
       }
     }
 
-    /* Estilo dos Botões de Pulo Netflix */
+    /* Botões Netflix: Ocultos no Celular e Visíveis Exclusivamente em Computador/Notebook */
+    #controlesNetflix {
+      display: none !important;
+    }
+    @media (min-width: 768px) {
+      #controlesNetflix {
+        display: flex !important;
+      }
+    }
+
     .btn-skip-netflix {
       background: rgba(0, 0, 0, 0.55);
       backdrop-filter: blur(4px);
@@ -223,8 +231,8 @@
             <!-- Marca d'água Translúcida e Nítida -->
             <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) -->
-            <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 flex items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
+            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) - Apenas em Telas Maiores -->
+            <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
               
               <!-- Retroceder 10 Segundos -->
               <button onclick="pularTempo(-10); event.stopPropagation();" title="Retroceder 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
