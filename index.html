@@ -732,8 +732,9 @@
       if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
         const epSalvo = serieAberta.episodios[info.indiceEp];
         const numEp = epSalvo.numero || (info.indiceEp + 1);
-        const ehFilme = (serieAberta.categoria && serieAberta.categoria.toLowerCase().includes('filme'));
-        textoBtn.innerText = ehFilme ? 'Continuar de onde parou' : `Continuar do Episódio ${numEp}`;
+       const cat = (serieAberta.categoria || "").toLowerCase();
+        const ehFilme = cat.includes("filme") || (epSalvo.titulo && epSalvo.titulo.toLowerCase().includes("filme"));
+        textoBtn.innerText = ehFilme ? "Continuar de onde parou" : `Continuar do Episódio ${numEp}`;
         btn.onclick = () => tocarEpisodio(info.indiceEp, info.tempo || 0);
         containerBtn.classList.remove("hidden");
       } else {
