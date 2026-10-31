@@ -85,7 +85,7 @@
       }
     }
 
-    /* Botões Netflix: Ocultos no Telemóvel e Visíveis Exclusivamente em Computador/Notebook */
+    /* Botões Netflix: Apenas em Computador/Notebook */
     #controlesNetflix {
       display: none !important;
     }
@@ -197,7 +197,7 @@
     </main>
   </div>
 
-  <!-- Modal Detalhes e Player (Otimizado para Telemóvel e Notebook/Desktop) -->
+  <!-- Modal Detalhes e Player -->
   <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end md:justify-center md:items-center p-0 md:p-4">
     <div class="app-container w-full bg-[#111420] border-t md:border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[95vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       
@@ -207,7 +207,7 @@
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition hover:bg-gray-700">✕</button>
       </div>
 
-      <!-- Corpo Principal do Modal com Layout Responsivo -->
+      <!-- Corpo Principal do Modal -->
       <div class="flex flex-col md:grid md:grid-cols-12 flex-1 overflow-hidden">
         
         <!-- Coluna Esquerda: Player e Controles do Vídeo -->
@@ -227,30 +227,25 @@
               oncontextmenu="return false;">
               <source id="playerSrc" src="" type="video/mp4">
             </video>
-            
-            <!-- Marca d'água Translúcida e Discreta -->
+
+            <!-- Marca d'água -->
             <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-            <!-- Controles Centrais Flutuantes Estilo Netflix (-10s / Play-Pause / +10s) - Apenas em Computador/Notebook -->
+            <!-- Controles Centrais Flutuantes Estilo Netflix (Apenas no Computador) -->
             <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
-              
-              <!-- Retroceder 10 Segundos -->
               <button onclick="pularTempo(-10); event.stopPropagation();" title="Retroceder 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
                 <i class="fa-solid fa-rotate-left text-sm sm:text-base"></i>
                 <span class="text-[9px] font-extrabold mt-0.5 leading-none">10s</span>
               </button>
 
-              <!-- Play / Pause Rápido -->
               <button onclick="alternarPlayPause(); event.stopPropagation();" id="btnPlayPauseCentral" title="Play / Pausar" class="pointer-events-auto btn-skip-netflix w-13 h-13 sm:w-16 sm:h-16 rounded-full text-amber-400 flex items-center justify-center shadow-2xl text-lg sm:text-2xl border-amber-500/40">
                 <i id="iconePlayPauseCentral" class="fa-solid fa-play ml-0.5"></i>
               </button>
 
-              <!-- Avançar 10 Segundos -->
               <button onclick="pularTempo(10); event.stopPropagation();" title="Avançar 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
                 <i class="fa-solid fa-rotate-right text-sm sm:text-base"></i>
                 <span class="text-[9px] font-extrabold mt-0.5 leading-none">10s</span>
               </button>
-
             </div>
 
             <!-- Overlay Episódio -->
@@ -318,7 +313,7 @@
     </div>
   </div>
 
-  <!-- Modal Aviso: Limite de Vagas Gratuitas Atingido (HTTP 429) -->
+  <!-- Modal Aviso: Limite de Vagas Gratuitas Atingido -->
   <div id="modalLimiteVagas" class="fixed inset-0 z-[100001] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-[#141724] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl animate-fade-in">
       <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-inner">
@@ -415,7 +410,6 @@
       }, 10000);
     }
 
-    // Atalhos do Teclado para PC/Notebook (← / → para pular 10s e Espaço para Play/Pause)
     document.addEventListener("keydown", (e) => {
       if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
         e.preventDefault();
@@ -888,12 +882,13 @@
       const ehFilme = cat.includes("filme");
       const temporadasDisponiveis = obterTemporadasDaSerie(serieAberta);
 
+      // Proteção: se houver temporadas filtra por ela, se não mostra todos os episódios sem esconder nada
       const epsFiltrados = (!ehFilme && temporadasDisponiveis.length > 1)
         ? todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx })).filter(ep => extrairTemporada(ep) === temporadaSelecionada)
         : todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx }));
 
       if (epsFiltrados.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum vídeo publicado.</p>";
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado.</p>";
       } else {
         epsFiltrados.forEach((ep) => {
           const index = ep.indiceOriginal;
@@ -963,12 +958,8 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
+      // URL DIRETA E PURA: Sem parâmetros para nunca quebrar no servidor
       let videoUrl = ep.url;
-      const separador = videoUrl.includes("?") ? "&" : "?";
-      videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
-      if (userId) {
-        videoUrl += `&uid=${encodeURIComponent(userId)}`;
-      }
 
       document.getElementById("infoEpAtual").innerText = epTexto;
       document.getElementById("overlaySerieNome").innerText = serieAberta.titulo;
