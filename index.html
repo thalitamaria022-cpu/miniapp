@@ -267,7 +267,7 @@
             <!-- Placeholder Central -->
             <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 cursor-pointer" onclick="iniciarReproducaoImediata()">
               <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2 transition hover:scale-110"></i>
-              <p id="textoAvisoPlay" class="text-xs font-bold text-white">Escolha um episódio abaixo para reproduzir</p>
+              <p id="textoAvisoPlay" class="text-xs font-bold text-white">Escolha um conteúdo abaixo para reproduzir</p>
             </div>
           </div>
 
@@ -282,7 +282,7 @@
               </button>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-[11px] text-gray-300 font-medium truncate max-w-[130px] sm:max-w-xs" id="infoEpAtual">Selecione o episódio</span>
+              <span class="text-[11px] text-gray-300 font-medium truncate max-w-[130px] sm:max-w-xs" id="infoEpAtual">Selecione</span>
               <button onclick="alternarTelaCheia()" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded flex items-center gap-1.5 active:scale-95 transition shadow-sm">
                 <i class="fa-solid fa-expand"></i> Expandir Tela
               </button>
@@ -595,6 +595,24 @@
       }
     }
 
+    // Regra Inteligente: Descobre com precisão se é Filme ou Série
+    function checarSeEhFilme(s) {
+      if (!s) return false;
+      const cat = (s.categoria || "").toLowerCase();
+      const tit = (s.titulo || "").toLowerCase();
+      
+      if (cat.includes("filme") || tit.includes("filme")) return true;
+      
+      const eps = s.episodios || [];
+      if (eps.length === 1) {
+        const epTit = (eps[0].titulo || "").toLowerCase();
+        if (epTit.includes("filme") || !epTit.includes("epis") && !epTit.includes("ep")) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     function renderizarContinuarAssistindo() {
       const secao = document.getElementById("secaoContinuarAssistindo");
       const grid = document.getElementById("gridContinuar");
@@ -620,8 +638,7 @@
         const epIndex = info.indiceEp < s.episodios.length ? info.indiceEp : 0;
         const ep = s.episodios[epIndex];
         
-        const cat = (s.categoria || "").toLowerCase();
-        const ehFilme = cat.includes("filme");
+        const ehFilme = checarSeEhFilme(s);
         const rotuloEp = ehFilme ? "Filme Completo" : (ep ? (ep.numero ? `Ep. ${ep.numero}` : `Ep. ${epIndex + 1}`) : `Ep. 1`);
 
         const card = document.createElement("div");
@@ -768,8 +785,7 @@
       serieAberta = s;
       indiceEpAtual = -1;
 
-      const cat = (s.categoria || "").toLowerCase();
-      const ehFilme = cat.includes("filme");
+      const ehFilme = checarSeEhFilme(s);
 
       document.getElementById("mTitulo").innerText = s.titulo;
       document.getElementById("mSinopse").innerText = s.sinopse || "Sem descrição disponível.";
@@ -826,8 +842,8 @@
       const container = document.getElementById("containerTemporadas");
       container.innerHTML = "";
 
-      const cat = (serieAberta?.categoria || "").toLowerCase();
-      if (cat.includes("filme") || temporadas.length <= 1) {
+      const ehFilme = checarSeEhFilme(serieAberta);
+      if (ehFilme || temporadas.length <= 1) {
         container.classList.add("hidden");
         return;
       }
@@ -857,8 +873,7 @@
 
       const hist = obterHistorico();
       const info = hist[serieAberta.titulo];
-      const cat = (serieAberta.categoria || "").toLowerCase();
-      const ehFilme = cat.includes("filme");
+      const ehFilme = checarSeEhFilme(serieAberta);
 
       containerBtn.classList.remove("hidden");
 
@@ -878,17 +893,15 @@
       lista.innerHTML = "";
 
       const todosEps = serieAberta?.episodios || [];
-      const cat = (serieAberta?.categoria || "").toLowerCase();
-      const ehFilme = cat.includes("filme");
+      const ehFilme = checarSeEhFilme(serieAberta);
       const temporadasDisponiveis = obterTemporadasDaSerie(serieAberta);
 
-      // Proteção: se houver temporadas filtra por ela, se não mostra todos os episódios sem esconder nada
       const epsFiltrados = (!ehFilme && temporadasDisponiveis.length > 1)
         ? todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx })).filter(ep => extrairTemporada(ep) === temporadaSelecionada)
         : todosEps.map((ep, idx) => ({ ...ep, indiceOriginal: idx }));
 
       if (epsFiltrados.length === 0) {
-        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum episódio publicado.</p>";
+        lista.innerHTML = "<p class='text-center text-gray-500 text-xs py-4'>Nenhum conteúdo publicado.</p>";
       } else {
         epsFiltrados.forEach((ep) => {
           const index = ep.indiceOriginal;
@@ -913,6 +926,7 @@
           }`;
           item.onclick = () => tocarEpisodio(index);
 
+          // Ajuste: Se for filme, exibe sempre "Filme Completo" e o ícone de claquete
           const rotuloItem = ehFilme ? "Filme Completo" : (ep.titulo || 'Episódio ' + (ep.numero || (index + 1)));
           const badgeIcon = ehFilme ? `<i class="fa-solid fa-film text-[11px]"></i>` : (ep.numero || (index + 1));
 
@@ -934,8 +948,7 @@
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       const ep = serieAberta.episodios[index];
-      const cat = (serieAberta.categoria || "").toLowerCase();
-      const ehFilme = cat.includes("filme");
+      const ehFilme = checarSeEhFilme(serieAberta);
 
       if (ep.is_vip && !usuarioIsVip) {
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
@@ -958,8 +971,13 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // URL DIRETA E PURA: Sem parâmetros para nunca quebrar no servidor
+      // ENVIA AUTENTICAÇÃO: Impede a mensagem de limite gratuito ocupado
       let videoUrl = ep.url;
+      const separador = videoUrl.includes("?") ? "&" : "?";
+      videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
+      if (userId) {
+        videoUrl += `&uid=${encodeURIComponent(userId)}`;
+      }
 
       document.getElementById("infoEpAtual").innerText = epTexto;
       document.getElementById("overlaySerieNome").innerText = serieAberta.titulo;
@@ -1031,9 +1049,9 @@
       const btnAnt = document.getElementById("btnEpAnterior");
       const btnProx = document.getElementById("btnEpProximo");
       const total = serieAberta?.episodios?.length || 0;
-      const cat = (serieAberta?.categoria || "").toLowerCase();
+      const ehFilme = checarSeEhFilme(serieAberta);
 
-      if (cat.includes("filme")) return;
+      if (ehFilme) return;
 
       if (indiceEpAtual <= 0) {
         btnAnt.disabled = true;
