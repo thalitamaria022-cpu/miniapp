@@ -248,7 +248,7 @@
               </button>
             </div>
 
-            <!-- Overlay Episódio -->
+            <!-- Overlay Episódio / Filme -->
             <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
               <div class="flex flex-col">
                 <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
@@ -595,7 +595,7 @@
       }
     }
 
-    // Regra Inteligente: Descobre com precisão se é Filme ou Série
+    // Regra Inteligente: Se tiver apenas 1 vídeo ou for categoria de filmes, trata sempre como Filme Completo
     function checarSeEhFilme(s) {
       if (!s) return false;
       const cat = (s.categoria || "").toLowerCase();
@@ -605,10 +605,7 @@
       
       const eps = s.episodios || [];
       if (eps.length === 1) {
-        const epTit = (eps[0].titulo || "").toLowerCase();
-        if (epTit.includes("filme") || !epTit.includes("epis") && !epTit.includes("ep")) {
-          return true;
-        }
+        return true;
       }
       return false;
     }
@@ -878,9 +875,8 @@
       containerBtn.classList.remove("hidden");
 
       if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
-        const epSalvo = serieAberta.episodios[info.indiceEp];
-        const numEp = epSalvo.numero || (info.indiceEp + 1);
-        textoBtn.innerText = ehFilme ? "Continuar de onde parou" : `Continuar do Episódio ${numEp}`;
+        // Exibe exatamente "Continuar de onde parou" se já foi iniciado
+        textoBtn.innerText = "Continuar de onde parou";
         btn.onclick = () => tocarEpisodio(info.indiceEp, info.tempo || 0);
       } else {
         textoBtn.innerText = ehFilme ? "Assistir Filme" : "Começar a Assistir";
@@ -926,7 +922,7 @@
           }`;
           item.onclick = () => tocarEpisodio(index);
 
-          // Ajuste: Se for filme, exibe sempre "Filme Completo" e o ícone de claquete
+          // Força "Filme Completo" com o ícone de filme quando for detectado como filme
           const rotuloItem = ehFilme ? "Filme Completo" : (ep.titulo || 'Episódio ' + (ep.numero || (index + 1)));
           const badgeIcon = ehFilme ? `<i class="fa-solid fa-film text-[11px]"></i>` : (ep.numero || (index + 1));
 
@@ -971,7 +967,7 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // ENVIA AUTENTICAÇÃO: Impede a mensagem de limite gratuito ocupado
+      // Passa a autenticação do assinante para a rota de streaming nunca disparar free_limit_reached
       let videoUrl = ep.url;
       const separador = videoUrl.includes("?") ? "&" : "?";
       videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
