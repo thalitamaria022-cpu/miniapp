@@ -69,29 +69,38 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água Anti-Gravação */
+    /* Marca d'água Anti-Gravação Responsiva: Ampliada no Computador e Translúcida */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
       z-index: 35;
-      color: rgba(255, 255, 255, 0.30) !important;
+      color: rgba(255, 255, 255, 0.32) !important;
       background: transparent !important;
       box-shadow: none !important;
-      text-shadow: none !important;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4) !important;
       outline: none !important;
       border: none !important;
-      font-size: 12px !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.4px !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.5px !important;
       transition: top 1s ease, left 1s ease, right 1s ease, bottom 1s ease;
     }
-    @media (min-width: 768px) {
+    /* Telas de Tablets */
+    @media (min-width: 640px) {
       .watermark-antigravacao {
-        font-size: 17px !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.6px !important;
-        color: rgba(255, 255, 255, 0.28) !important;
+        font-size: 20px !important;
+        letter-spacing: 0.8px !important;
+        color: rgba(255, 255, 255, 0.35) !important;
+      }
+    }
+    /* Telas de Computadores / Notebooks */
+    @media (min-width: 1024px) {
+      .watermark-antigravacao {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        letter-spacing: 1px !important;
+        color: rgba(255, 255, 255, 0.35) !important;
       }
     }
 
@@ -402,11 +411,11 @@
       wm.innerText = textoIdentificador;
 
       const posicoes = [
-        { top: "14px", left: "14px", right: "auto", bottom: "auto" },
-        { top: "45%", left: "30%", right: "auto", bottom: "auto" },
-        { bottom: "16px", left: "14px", top: "auto", right: "auto" },
-        { bottom: "16px", right: "14px", top: "auto", left: "auto" },
-        { top: "14px", left: "14px", right: "auto", bottom: "auto" }
+        { top: "16px", left: "16px", right: "auto", bottom: "auto" },
+        { top: "45%", left: "25%", right: "auto", bottom: "auto" },
+        { bottom: "24px", left: "16px", top: "auto", right: "auto" },
+        { bottom: "24px", right: "16px", top: "auto", left: "auto" },
+        { top: "16px", left: "16px", right: "auto", bottom: "auto" }
       ];
 
       let idx = 0;
@@ -605,22 +614,24 @@
       }
     }
 
-    // Identificação: detecta se foi adicionado como "Filme Completo", tipo "filme" ou categorias de filmes
+    // Identificação Precisa:
+    // Se tiver mais de 1 episódio, NUNCA é filme (é série).
+    // Só é filme se tiver 1 episódio E o tipo for "filme", o título tiver "filme completo" ou o episódio for "Filme Completo".
     function checarSeEhFilme(s) {
-      if (!s) return false;
+      if (!s || !s.episodios) return false;
+      if (s.episodios.length > 1) return false;
+
       const cat = (s.categoria || "").toLowerCase();
       const tipo = (s.tipo || "").toLowerCase();
       const tit = (s.titulo || "").toLowerCase();
-      const primeiroEpTitulo = s.episodios && s.episodios[0] ? (s.episodios[0].titulo || "").toLowerCase() : "";
+      const primeiroEpTitulo = s.episodios[0] ? (s.episodios[0].titulo || "").toLowerCase() : "";
 
       if (
         tipo === "filme" ||
         primeiroEpTitulo.includes("filme completo") ||
         primeiroEpTitulo === "filme" ||
-        cat.includes("filme") ||
-        cat.includes("romance") ||
-        cat.includes("livro") ||
-        tit.includes("filme completo")
+        tit.includes("filme completo") ||
+        (cat === "filmes-turcos" && s.episodios.length === 1)
       ) {
         return true;
       }
