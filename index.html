@@ -29,6 +29,16 @@
       display: none !important;
     }
 
+    /* Ajuste para fixar controles colados no rodapé da mídia */
+    .video-wrapper-box {
+      position: relative !important;
+      width: 100% !important;
+      background-color: #000 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
     /* Modo Cinema / Ecrã Inteiro Real no Telegram */
     .video-fullscreen-mode {
       position: fixed !important;
@@ -46,7 +56,7 @@
     .video-fullscreen-mode video {
       width: 100% !important;
       height: 100% !important;
-      max-height: 100% !important;
+      max-height: 100vh !important;
       object-fit: contain !important;
     }
 
@@ -212,7 +222,7 @@
         
         <!-- Coluna Esquerda: Player e Controles do Vídeo -->
         <div class="md:col-span-8 flex flex-col bg-black">
-          <div id="videoContainer" class="w-full bg-black aspect-video flex items-center justify-center relative overflow-hidden group" onclick="acionarInteracaoTela()" onmousemove="acionarInteracaoTela()" oncontextmenu="return false;">
+          <div id="videoContainer" class="video-wrapper-box aspect-video overflow-hidden group" onclick="acionarInteracaoTela()" onmousemove="acionarInteracaoTela()" oncontextmenu="return false;">
             
             <video 
               id="player" 
@@ -223,7 +233,7 @@
               preload="metadata" 
               controlsList="nodownload noplaybackrate" 
               disablePictureInPicture
-              class="w-full h-full max-h-[40vh] md:max-h-[58vh]" 
+              class="w-full h-full object-contain" 
               oncontextmenu="return false;">
               <source id="playerSrc" src="" type="video/mp4">
             </video>
@@ -875,7 +885,6 @@
       containerBtn.classList.remove("hidden");
 
       if (info && serieAberta.episodios && serieAberta.episodios[info.indiceEp]) {
-        // Exibe exatamente "Continuar de onde parou" se já foi iniciado
         textoBtn.innerText = "Continuar de onde parou";
         btn.onclick = () => tocarEpisodio(info.indiceEp, info.tempo || 0);
       } else {
@@ -922,7 +931,6 @@
           }`;
           item.onclick = () => tocarEpisodio(index);
 
-          // Força "Filme Completo" com o ícone de filme quando for detectado como filme
           const rotuloItem = ehFilme ? "Filme Completo" : (ep.titulo || 'Episódio ' + (ep.numero || (index + 1)));
           const badgeIcon = ehFilme ? `<i class="fa-solid fa-film text-[11px]"></i>` : (ep.numero || (index + 1));
 
@@ -967,7 +975,6 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      // Passa a autenticação do assinante para a rota de streaming nunca disparar free_limit_reached
       let videoUrl = ep.url;
       const separador = videoUrl.includes("?") ? "&" : "?";
       videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
