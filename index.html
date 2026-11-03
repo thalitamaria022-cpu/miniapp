@@ -615,8 +615,9 @@
       }
     }
 
-    // Regra Inteligente: Se tiver mais de 1 vídeo, é SEMPRE SÉRIE.
-    // Se tiver 1 vídeo, basta conter a palavra "filme" (no título, tipo, episódio ou categoria filmes-turcos).
+    // Identificação Inteligente e Precisa:
+    // Se tiver mais de 1 vídeo, é SEMPRE SÉRIE (ex: À Espera de Perséfone).
+    // Se tiver 1 vídeo, basta a palavra "filme" existir no título, no episódio, na sinopse, no tipo ou categoria para virar Filme.
     function checarSeEhFilme(s) {
       if (!s || !s.episodios) return false;
       if (s.episodios.length > 1) return false;
@@ -624,12 +625,14 @@
       const cat = (s.categoria || "").toLowerCase();
       const tipo = (s.tipo || "").toLowerCase();
       const tit = (s.titulo || "").toLowerCase();
+      const sinopse = (s.sinopse || "").toLowerCase();
       const primeiroEpTitulo = s.episodios[0] ? (s.episodios[0].titulo || "").toLowerCase() : "";
 
       if (
         tipo.includes("filme") ||
         tit.includes("filme") ||
         primeiroEpTitulo.includes("filme") ||
+        sinopse.includes("filme") ||
         cat === "filmes-turcos"
       ) {
         return true;
