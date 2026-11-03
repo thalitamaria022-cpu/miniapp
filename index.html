@@ -24,12 +24,12 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .app-container { max-width: 1100px; margin: 0 auto; }
 
-    /* Esconder o botão cinzento nativo inativo no Telegram */
+    /* Esconder o botão nativo inativo no Telegram */
     video::-webkit-media-controls-fullscreen-button {
       display: none !important;
     }
 
-    /* Ajuste para fixar controles colados no rodapé da mídia */
+    /* Container do vídeo ajustado para travar a barra no rodapé exato da mídia */
     .video-wrapper-box {
       position: relative !important;
       width: 100% !important;
@@ -39,7 +39,7 @@
       justify-content: center !important;
     }
 
-    /* Modo Cinema / Ecrã Inteiro Real no Telegram */
+    /* Modo Cinema no Telegram */
     .video-fullscreen-mode {
       position: fixed !important;
       inset: 0 !important;
@@ -55,7 +55,7 @@
     }
     .video-fullscreen-mode video {
       width: 100% !important;
-      height: 100% !important;
+      height: auto !important;
       max-height: 100vh !important;
       object-fit: contain !important;
     }
@@ -69,7 +69,7 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água Anti-Gravação: Translúcida, Discreta e Sem Sombra */
+    /* Marca d'água Anti-Gravação */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
@@ -95,7 +95,7 @@
       }
     }
 
-    /* Botões Netflix: Apenas em Computador/Notebook */
+    /* Botões Netflix para Computador */
     #controlesNetflix {
       display: none !important;
     }
@@ -139,7 +139,7 @@
     </div>
   </header>
 
-  <!-- Campo de Pesquisa com Lupa -->
+  <!-- Campo de Pesquisa -->
   <div class="bg-[#0b0d14] px-4 pt-3 pb-1 border-b border-gray-800/40">
     <div class="app-container">
       <div class="relative flex items-center">
@@ -168,7 +168,7 @@
   </nav>
 
   <div class="app-container">
-    <!-- Banner Oficial Dinâmico -->
+    <!-- Banner Oficial -->
     <section class="p-4" id="bannerSecao">
       <div class="rounded-xl border border-gray-800 bg-gradient-to-r from-gray-900 via-[#131722] to-gray-800 p-4 shadow-lg">
         <p id="bannerSubtitulo" class="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -183,7 +183,7 @@
       </div>
     </section>
 
-    <!-- Seção: Continuar Assistindo -->
+    <!-- Continuar Assistindo -->
     <section id="secaoContinuarAssistindo" class="px-4 mb-4 hidden">
       <div class="flex items-center gap-2 mb-2.5">
         <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
@@ -192,7 +192,7 @@
       <div id="gridContinuar" class="flex gap-3 overflow-x-auto hide-scrollbar pb-1"></div>
     </section>
 
-    <!-- Contador e Título Principal -->
+    <!-- Contador e Título -->
     <div class="px-4 flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
         <div class="w-1.5 h-3.5 bg-amber-500 rounded-full"></div>
@@ -201,7 +201,7 @@
       <span id="catCount" class="text-xs text-gray-400">0 títulos</span>
     </div>
 
-    <!-- Cards Principais -->
+    <!-- Cards do Catálogo -->
     <main class="px-4">
       <div id="gridSeries" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"></div>
     </main>
@@ -211,18 +211,18 @@
   <div id="modalPlayer" class="fixed inset-0 z-50 bg-black/90 hidden flex-col justify-end md:justify-center md:items-center p-0 md:p-4">
     <div class="app-container w-full bg-[#111420] border-t md:border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[95vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       
-      <!-- Cabeçalho do Modal -->
+      <!-- Cabeçalho -->
       <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between bg-[#141724]">
         <h4 id="mTitulo" class="font-bold text-sm text-white truncate pr-2"></h4>
         <button onclick="fecharModal()" class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm active:scale-90 transition hover:bg-gray-700">✕</button>
       </div>
 
-      <!-- Corpo Principal do Modal -->
+      <!-- Corpo Principal -->
       <div class="flex flex-col md:grid md:grid-cols-12 flex-1 overflow-hidden">
         
-        <!-- Coluna Esquerda: Player e Controles do Vídeo -->
+        <!-- Coluna Esquerda: Player -->
         <div class="md:col-span-8 flex flex-col bg-black">
-          <div id="videoContainer" class="video-wrapper-box aspect-video overflow-hidden group" onclick="acionarInteracaoTela()" onmousemove="acionarInteracaoTela()" oncontextmenu="return false;">
+          <div id="videoContainer" class="video-wrapper-box relative aspect-video flex items-center justify-center overflow-hidden group" onclick="acionarInteracaoTela()" onmousemove="acionarInteracaoTela()" oncontextmenu="return false;">
             
             <video 
               id="player" 
@@ -241,7 +241,7 @@
             <!-- Marca d'água -->
             <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
 
-            <!-- Controles Centrais Flutuantes Estilo Netflix (Apenas no Computador) -->
+            <!-- Controles Netflix para PC -->
             <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
               <button onclick="pularTempo(-10); event.stopPropagation();" title="Retroceder 10 segundos" class="pointer-events-auto btn-skip-netflix w-11 h-11 sm:w-13 sm:h-13 rounded-full text-white flex flex-col items-center justify-center shadow-lg">
                 <i class="fa-solid fa-rotate-left text-sm sm:text-base"></i>
@@ -258,7 +258,7 @@
               </button>
             </div>
 
-            <!-- Overlay Episódio / Filme -->
+            <!-- Overlay Títulos -->
             <div id="overlayEpisodio" class="controles-imersivos oculto absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between pointer-events-none z-30">
               <div class="flex flex-col">
                 <span id="overlaySerieNome" class="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 drop-shadow"></span>
@@ -269,19 +269,19 @@
               </span>
             </div>
 
-            <!-- Botão Sair da Tela Cheia -->
+            <!-- Sair Tela Cheia -->
             <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
               <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
             </button>
 
-            <!-- Placeholder Central -->
-            <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 cursor-pointer" onclick="iniciarReproducaoImediata()">
+            <!-- Overlay Início -->
+            <div id="avisoPlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-3 cursor-pointer z-20" onclick="iniciarReproducaoImediata()">
               <i class="fa-solid fa-play-circle text-4xl text-amber-500 mb-2 transition hover:scale-110"></i>
               <p id="textoAvisoPlay" class="text-xs font-bold text-white">Escolha um conteúdo abaixo para reproduzir</p>
             </div>
           </div>
 
-          <!-- Barra de Navegação Rápida -->
+          <!-- Navegação Rápida -->
           <div class="px-3 py-2 bg-[#161a29] border-t border-b border-gray-800 flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5" id="blocoBotoesNavegacao">
               <button id="btnEpAnterior" onclick="mudarEpisodio(-1)" disabled class="px-2.5 py-1 rounded bg-gray-800 text-gray-400 font-bold text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition">
@@ -300,11 +300,10 @@
           </div>
         </div>
 
-        <!-- Coluna Direita: Sinopse, Botão Continuar e Lista -->
+        <!-- Coluna Direita: Episódios e Avisos -->
         <div class="md:col-span-4 flex flex-col bg-[#111420] border-t md:border-t-0 md:border-l border-gray-800 overflow-hidden max-h-[45vh] md:max-h-full">
           <div class="p-3 bg-gray-900/60 border-b border-gray-800 text-[11px] text-gray-300 max-h-24 md:max-h-36 overflow-y-auto" id="mSinopse"></div>
 
-          <!-- Botão em Destaque: Continuar / Assistir -->
           <div id="containerBtnContinuarModal" class="p-2.5 bg-[#141724] border-b border-gray-800/80">
             <button id="btnContinuarModal" class="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition">
               <i class="fa-solid fa-circle-play text-sm"></i>
@@ -312,20 +311,21 @@
             </button>
           </div>
 
-          <!-- Abas de Temporadas -->
           <div id="containerTemporadas" class="px-3 pt-2 pb-1 bg-[#111420] border-b border-gray-800 flex gap-2 overflow-x-auto hide-scrollbar hidden"></div>
           
-          <!-- Lista de Episódios / Filme Completo -->
           <div class="p-3 overflow-y-auto flex-1 space-y-2" id="mEpsList"></div>
+
+          <!-- Rodapé Manual de Avisos -->
+          <div id="mStatusAviso" class="p-2.5 border-t border-gray-800/80 bg-[#141724] text-center hidden"></div>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- Modal Aviso: Limite de Vagas Gratuitas Atingido -->
+  <!-- Modal Limite de Vagas -->
   <div id="modalLimiteVagas" class="fixed inset-0 z-[100001] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-[#141724] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl animate-fade-in">
+    <div class="bg-[#141724] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl">
       <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-inner">
         <i class="fa-solid fa-fire"></i>
       </div>
@@ -395,7 +395,7 @@
       if (user) {
         textoIdentificador = (user.username ? `@${user.username}` : user.first_name || "Membro") + ` (ID: ${user.id})`;
       } else if (userId) {
-        textoIdentificador = `@ThalitaMSA (ID: ${userId})`;
+        textoIdentificador = `@ThallitaMA (ID: ${userId})`;
       } else {
         textoIdentificador = "Séries Turcas NV";
       }
@@ -605,18 +605,13 @@
       }
     }
 
-    // Regra Inteligente: Se tiver apenas 1 vídeo ou for categoria de filmes, trata sempre como Filme Completo
+    // Identificação: apenas itens definidos estritamente como filme
     function checarSeEhFilme(s) {
       if (!s) return false;
       const cat = (s.categoria || "").toLowerCase();
-      const tit = (s.titulo || "").toLowerCase();
+      const tipo = (s.tipo || "").toLowerCase();
       
-      if (cat.includes("filme") || tit.includes("filme")) return true;
-      
-      const eps = s.episodios || [];
-      if (eps.length === 1) {
-        return true;
-      }
+      if (cat.includes("filme") || tipo === "filme") return true;
       return false;
     }
 
@@ -826,6 +821,7 @@
       
       renderizarSeletorTemporadas(temporadasDisponiveis);
       renderizarListaEpisodios();
+      renderizarAvisosSerie(s);
 
       const m = document.getElementById("modalPlayer");
       m.classList.remove("hidden");
@@ -834,6 +830,33 @@
       if (tg?.BackButton) {
         tg.BackButton.show();
       }
+    }
+
+    // Exibição estritamente manual: se vazio, permanece oculto
+    function renderizarAvisosSerie(s) {
+      const containerAviso = document.getElementById("mStatusAviso");
+      const textoPersonalizado = (s.aviso || s.status || "").trim();
+
+      if (!textoPersonalizado) {
+        containerAviso.classList.add("hidden");
+        containerAviso.innerHTML = "";
+        return;
+      }
+
+      if (textoPersonalizado.toLowerCase().includes("finalizada")) {
+        containerAviso.innerHTML = `
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-[11px] tracking-wide shadow-sm">
+            <i class="fa-solid fa-circle-check text-xs"></i> ${textoPersonalizado}
+          </div>
+        `;
+      } else {
+        containerAviso.innerHTML = `
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold text-[11px] tracking-wide shadow-sm">
+            <i class="fa-solid fa-bullhorn text-xs"></i> ${textoPersonalizado}
+          </div>
+        `;
+      }
+      containerAviso.classList.remove("hidden");
     }
 
     function obterTemporadasDaSerie(s) {
