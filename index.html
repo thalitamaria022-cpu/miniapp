@@ -605,13 +605,25 @@
       }
     }
 
-    // Identificação: apenas itens definidos estritamente como filme
+    // Identificação: detecta se foi adicionado como "Filme Completo", tipo "filme" ou categorias de filmes
     function checarSeEhFilme(s) {
       if (!s) return false;
       const cat = (s.categoria || "").toLowerCase();
       const tipo = (s.tipo || "").toLowerCase();
-      
-      if (cat.includes("filme") || tipo === "filme") return true;
+      const tit = (s.titulo || "").toLowerCase();
+      const primeiroEpTitulo = s.episodios && s.episodios[0] ? (s.episodios[0].titulo || "").toLowerCase() : "";
+
+      if (
+        tipo === "filme" ||
+        primeiroEpTitulo.includes("filme completo") ||
+        primeiroEpTitulo === "filme" ||
+        cat.includes("filme") ||
+        cat.includes("romance") ||
+        cat.includes("livro") ||
+        tit.includes("filme completo")
+      ) {
+        return true;
+      }
       return false;
     }
 
