@@ -69,16 +69,16 @@
       pointer-events: none !important;
     }
 
-    /* Marca d'água Anti-Gravação Responsiva: Ampliada no Computador e Translúcida */
+    /* Marca d'água Anti-Gravação: Sem Sombra, Translúcida e Grande no PC */
     .watermark-antigravacao {
       position: absolute;
       pointer-events: none;
       user-select: none;
       z-index: 35;
-      color: rgba(255, 255, 255, 0.32) !important;
+      color: rgba(255, 255, 255, 0.30) !important;
       background: transparent !important;
       box-shadow: none !important;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4) !important;
+      text-shadow: none !important;
       outline: none !important;
       border: none !important;
       font-size: 14px !important;
@@ -89,18 +89,19 @@
     /* Telas de Tablets */
     @media (min-width: 640px) {
       .watermark-antigravacao {
-        font-size: 20px !important;
-        letter-spacing: 0.8px !important;
-        color: rgba(255, 255, 255, 0.35) !important;
-      }
-    }
-    /* Telas de Computadores / Notebooks */
-    @media (min-width: 1024px) {
-      .watermark-antigravacao {
-        font-size: 28px !important;
+        font-size: 24px !important;
         font-weight: 800 !important;
         letter-spacing: 1px !important;
-        color: rgba(255, 255, 255, 0.35) !important;
+        color: rgba(255, 255, 255, 0.32) !important;
+      }
+    }
+    /* Telas de Computadores e Notebooks */
+    @media (min-width: 1024px) {
+      .watermark-antigravacao {
+        font-size: 36px !important;
+        font-weight: 800 !important;
+        letter-spacing: 1.5px !important;
+        color: rgba(255, 255, 255, 0.34) !important;
       }
     }
 
@@ -248,7 +249,7 @@
             </video>
 
             <!-- Marca d'água -->
-            <div id="userWatermark" class="watermark-antigravacao top-3 left-3"></div>
+            <div id="userWatermark" class="watermark-antigravacao top-4 left-4"></div>
 
             <!-- Controles Netflix para PC -->
             <div id="controlesNetflix" class="controles-imersivos oculto absolute inset-0 items-center justify-center gap-5 sm:gap-8 z-30 pointer-events-none">
@@ -412,9 +413,9 @@
 
       const posicoes = [
         { top: "16px", left: "16px", right: "auto", bottom: "auto" },
-        { top: "45%", left: "25%", right: "auto", bottom: "auto" },
-        { bottom: "24px", left: "16px", top: "auto", right: "auto" },
-        { bottom: "24px", right: "16px", top: "auto", left: "auto" },
+        { top: "45%", left: "20%", right: "auto", bottom: "auto" },
+        { bottom: "28px", left: "16px", top: "auto", right: "auto" },
+        { bottom: "28px", right: "16px", top: "auto", left: "auto" },
         { top: "16px", left: "16px", right: "auto", bottom: "auto" }
       ];
 
@@ -614,9 +615,8 @@
       }
     }
 
-    // Identificação Precisa:
-    // Se tiver mais de 1 episódio, NUNCA é filme (é série).
-    // Só é filme se tiver 1 episódio E o tipo for "filme", o título tiver "filme completo" ou o episódio for "Filme Completo".
+    // Regra Inteligente: Se tiver mais de 1 vídeo, é SEMPRE SÉRIE.
+    // Se tiver 1 vídeo, basta conter a palavra "filme" (no título, tipo, episódio ou categoria filmes-turcos).
     function checarSeEhFilme(s) {
       if (!s || !s.episodios) return false;
       if (s.episodios.length > 1) return false;
@@ -627,11 +627,10 @@
       const primeiroEpTitulo = s.episodios[0] ? (s.episodios[0].titulo || "").toLowerCase() : "";
 
       if (
-        tipo === "filme" ||
-        primeiroEpTitulo.includes("filme completo") ||
-        primeiroEpTitulo === "filme" ||
-        tit.includes("filme completo") ||
-        (cat === "filmes-turcos" && s.episodios.length === 1)
+        tipo.includes("filme") ||
+        tit.includes("filme") ||
+        primeiroEpTitulo.includes("filme") ||
+        cat === "filmes-turcos"
       ) {
         return true;
       }
