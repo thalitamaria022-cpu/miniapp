@@ -28,6 +28,12 @@
     video::-webkit-media-controls-fullscreen-button {
       display: none !important;
     }
+    video::-internal-media-controls-download-button {
+      display: none !important;
+    }
+    video::-webkit-media-controls-enclosure {
+      overflow: hidden;
+    }
 
     /* Container do vídeo ajustado para travar a barra no rodapé exato da mídia */
     .video-wrapper-box {
@@ -37,6 +43,23 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+    }
+
+    /* Cortina de Proteção Ativada em Perda de Foco / Notificações / Gravadores */
+    #cortinaProtecaoGravacao {
+      display: none;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      z-index: 45;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      pointer-events: auto;
     }
 
     /* Modo Cinema no Telegram */
@@ -241,12 +264,19 @@
               webkit-playsinline 
               x5-playsinline 
               preload="metadata" 
-              controlsList="nodownload noplaybackrate" 
+              controlsList="nodownload noplaybackrate nofullscreen" 
               disablePictureInPicture
-              class="w-full h-full object-contain" 
+              class="w-full h-full object-contain pointer-events-auto" 
               oncontextmenu="return false;">
               <source id="playerSrc" src="" type="video/mp4">
             </video>
+
+            <!-- Cortina de Proteção Ativada em Perda de Foco / Notificações / Gravadores -->
+            <div id="cortinaProtecaoGravacao">
+              <i class="fa-solid fa-shield-halved text-amber-500 text-3xl mb-2"></i>
+              <p class="text-white font-bold text-xs">Reprodução Protegida</p>
+              <p class="text-gray-400 text-[10px] mt-1 max-w-xs">Retorne para a tela do catálogo para continuar assistindo.</p>
+            </div>
 
             <!-- Marca d'água -->
             <div id="userWatermark" class="watermark-antigravacao top-4 left-4"></div>
@@ -398,6 +428,7 @@
       } catch (e) {}
     }
 
+    /* Marca d'água original preservada exatamente como você definiu */
     function iniciarMarcaDagua() {
       const wm = document.getElementById("userWatermark");
       const user = tg?.initDataUnsafe?.user;
@@ -430,9 +461,17 @@
       }, 10000);
     }
 
+    /* Proteções de Teclado, Atalhos e Captura de Tela */
     document.addEventListener("keydown", (e) => {
-      if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p"))) {
+      // Bloqueia PrintScreen, F12 e combinações com Ctrl (S, U, P, Shift+I, Shift+J, Shift+C)
+      if (
+        e.key === "PrintScreen" || 
+        e.keyCode === 123 ||
+        (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p" || e.key === "c")) ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c"))
+      ) {
         e.preventDefault();
+        return false;
       }
 
       const modalAberto = !document.getElementById("modalPlayer").classList.contains("hidden");
@@ -450,6 +489,10 @@
       }
     });
 
+    // Bloqueio Global de Menu de Contexto e Seleção por Arraste
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("dragstart", (e) => e.preventDefault());
+
     let dadosCompletos = [];
     let catAtual = "turcas";
     let termoBusca = "";
@@ -460,6 +503,33 @@
     let timerOcultarControles = null;
 
     const videoEl = document.getElementById("player");
+    const cortina = document.getElementById("cortinaProtecaoGravacao");
+
+    /* Ativa a tela preta protetora se o usuário puxar notificações, perder o foco ou mudar de app */
+    function ativarCortinaProtecao() {
+      if (indiceEpAtual >= 0 && !videoEl.paused) {
+        videoEl.pause();
+      }
+      if (cortina && indiceEpAtual >= 0) {
+        cortina.style.display = "flex";
+      }
+    }
+
+    function desativarCortinaProtecao() {
+      if (cortina) {
+        cortina.style.display = "none";
+      }
+    }
+
+    window.addEventListener("blur", ativarCortinaProtecao);
+    window.addEventListener("focus", desativarCortinaProtecao);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        ativarCortinaProtecao();
+      } else {
+        desativarCortinaProtecao();
+      }
+    });
 
     videoEl.addEventListener("error", () => {
       if (!usuarioIsVip) {
@@ -503,6 +573,7 @@
     videoEl.addEventListener("play", () => {
       atualizarIconePlayPause(true);
       resetarTimerControles();
+      desativarCortinaProtecao();
     });
 
     videoEl.addEventListener("pause", () => {
@@ -615,9 +686,6 @@
       }
     }
 
-    // Identificação Inteligente e Precisa:
-    // Se tiver mais de 1 vídeo, é SEMPRE SÉRIE (ex: À Espera de Perséfone).
-    // Se tiver 1 vídeo, basta a palavra "filme" existir no título, no episódio, na sinopse, no tipo ou categoria para virar Filme.
     function checarSeEhFilme(s) {
       if (!s || !s.episodios) return false;
       if (s.episodios.length > 1) return false;
@@ -857,7 +925,6 @@
       }
     }
 
-    // Exibição estritamente manual: se vazio, permanece oculto
     function renderizarAvisosSerie(s) {
       const containerAviso = document.getElementById("mStatusAviso");
       const textoPersonalizado = (s.aviso || s.status || "").trim();
