@@ -363,22 +363,22 @@
     </div>
   </div>
 
-  <!-- Modal Limite de Vagas -->
+  <!-- Modal Limite de Vagas / Acesso Bloqueado -->
   <div id="modalLimiteVagas" class="fixed inset-0 z-[100001] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-[#141724] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl">
       <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-inner">
-        <i class="fa-solid fa-fire"></i>
+        <i class="fa-solid fa-shield-halved"></i>
       </div>
-      <h3 class="text-base font-black text-white tracking-wide">Servidores Cheios no Grátis!</h3>
-      <p class="text-xs text-gray-300 mt-2 leading-relaxed">
-        Todos os acessos gratuitos estão ocupados no momento. Torne-se VIP para assistir de imediato com velocidade máxima!
+      <h3 class="text-base font-black text-white tracking-wide" id="tituloModalBloqueio">Acesso Exclusivo VIP!</h3>
+      <p class="text-xs text-gray-300 mt-2 leading-relaxed" id="descModalBloqueio">
+        Este conteúdo ou episódio é restrito para assinantes autorizados. Torne-se VIP para ter acesso ilimitado com máxima velocidade!
       </p>
       <div class="mt-5 flex flex-col gap-2">
         <button onclick="abrirVip()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition">
           <i class="fa-solid fa-crown"></i> QUERO SER VIP AGORA
         </button>
         <button onclick="fecharModalLimite()" class="w-full py-2 rounded-xl bg-gray-800/80 hover:bg-gray-800 text-gray-300 font-bold text-xs active:scale-95 transition">
-          Tentar mais tarde
+          Fechar
         </button>
       </div>
     </div>
@@ -401,8 +401,11 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('uid') || '';
+    const telegramInitData = tg?.initData || '';
 
-    const API_URL = "https://seriesturcasnv.com/api/catalogo?t=" + Date.now() + (userId ? "&uid=" + userId : "");
+    // Endereço base da sua API na DigitalOcean
+    const BASE_BACKEND_URL = "https://seriesturcasnv.com";
+    const API_URL = `${BASE_BACKEND_URL}/api/catalogo?t=${Date.now()}${userId ? "&uid=" + userId : ""}`;
 
     let usuarioIsVip = false;
     const CHAVE_HISTORICO = "nv_progresso_series";
@@ -428,7 +431,7 @@
       } catch (e) {}
     }
 
-    /* Marca d'água original preservada exatamente como você definiu */
+    /* Marca d'água original preservada exatamente */
     function iniciarMarcaDagua() {
       const wm = document.getElementById("userWatermark");
       const user = tg?.initDataUnsafe?.user;
@@ -463,7 +466,6 @@
 
     /* Proteções de Teclado, Atalhos e Captura de Tela */
     document.addEventListener("keydown", (e) => {
-      // Bloqueia PrintScreen, F12 e combinações com Ctrl (S, U, P, Shift+I, Shift+J, Shift+C)
       if (
         e.key === "PrintScreen" || 
         e.keyCode === 123 ||
@@ -489,7 +491,6 @@
       }
     });
 
-    // Bloqueio Global de Menu de Contexto e Seleção por Arraste
     document.addEventListener("contextmenu", (e) => e.preventDefault());
     document.addEventListener("dragstart", (e) => e.preventDefault());
 
@@ -505,7 +506,6 @@
     const videoEl = document.getElementById("player");
     const cortina = document.getElementById("cortinaProtecaoGravacao");
 
-    /* Ativa a tela preta protetora se o usuário puxar notificações, perder o foco ou mudar de app */
     function ativarCortinaProtecao() {
       if (indiceEpAtual >= 0 && !videoEl.paused) {
         videoEl.pause();
@@ -531,12 +531,13 @@
       }
     });
 
+    // Se o player disparar erro (como HTTP 403 Forbidden retornado pelo backend)
     videoEl.addEventListener("error", () => {
-      if (!usuarioIsVip) {
-        document.getElementById("modalLimiteVagas").classList.remove("hidden");
-        document.getElementById("modalLimiteVagas").classList.add("flex");
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
-      }
+      document.getElementById("tituloModalBloqueio").innerText = "Acesso Negado (403)";
+      document.getElementById("descModalBloqueio").innerText = "Este link só pode ser reproduzido por assinantes oficiais dentro do Mini App. Assine o plano VIP para liberar.";
+      document.getElementById("modalLimiteVagas").classList.remove("hidden");
+      document.getElementById("modalLimiteVagas").classList.add("flex");
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
     });
 
     function fecharModalLimite() {
@@ -659,7 +660,7 @@
       try {
         const res = await fetch(API_URL);
         if (res.status === 403) {
-          document.getElementById("gridSeries").innerHTML = "<div class='col-span-full text-center py-12 px-4'><i class='fa-solid fa-ban text-4xl text-red-500 mb-2'></i><p class='text-red-400 font-bold text-sm'>Acesso Suspenso</p><p class='text-gray-400 text-xs mt-1'>Sua conta não tem autorização para acessar o catálogo.</p></div>";
+          document.getElementById("gridSeries").innerHTML = "<div class='col-span-full text-center py-12 px-4'><i class='fa-solid fa-ban text-4xl text-red-500 mb-2'></i><p class='text-red-400 font-bold text-sm'>Acesso Suspenso (403)</p><p class='text-gray-400 text-xs mt-1'>Sua conta não tem autorização para acessar o catálogo.</p></div>";
           return;
         }
 
@@ -1063,6 +1064,25 @@
       }
     }
 
+    /* Roteamento Seguro de Vídeo: Conecta a Unidade Z (Hetzner) via Proxy Seguro da DigitalOcean */
+    function obterUrlSegura(urlBruta) {
+      if (!urlBruta) return "";
+
+      // Se a URL aponta para a Hetzner Storage Box ou é relativa, passa pelo seu servidor protegido
+      if (urlBruta.includes("your-storagebox.de") || !urlBruta.startsWith("http")) {
+        let caminhoLimpo = urlBruta;
+        if (urlBruta.includes("your-storagebox.de/")) {
+          caminhoLimpo = urlBruta.split("your-storagebox.de/")[1];
+        }
+        
+        // Garante que o caminho seja transmitido codificado com a chave de sessão
+        return `${BASE_BACKEND_URL}/stream-video?file=${encodeURIComponent(caminhoLimpo)}&uid=${encodeURIComponent(userId)}&tg_auth=${encodeURIComponent(telegramInitData)}`;
+      }
+
+      // Se for link legado direto (ex: canal cofre antigo ou streaming externo)
+      return urlBruta;
+    }
+
     function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
@@ -1090,12 +1110,10 @@
 
       document.getElementById("avisoPlay").classList.add("hidden");
 
-      let videoUrl = ep.url;
+      // Monta a URL protegida com validação de assinatura e trava contra vazamento
+      let videoUrl = obterUrlSegura(ep.url);
       const separador = videoUrl.includes("?") ? "&" : "?";
       videoUrl += `${separador}vip=${usuarioIsVip ? 1 : 0}`;
-      if (userId) {
-        videoUrl += `&uid=${encodeURIComponent(userId)}`;
-      }
 
       document.getElementById("infoEpAtual").innerText = epTexto;
       document.getElementById("overlaySerieNome").innerText = serieAberta.titulo;
