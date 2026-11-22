@@ -500,11 +500,14 @@
     const cortina = document.getElementById("cortinaProtecaoGravacao");
 
     function ativarCortinaProtecao() {
-      if (indiceEpAtual >= 0 && !videoEl.paused) {
-        videoEl.pause();
+      if (videoEl) {
+        videoEl.muted = true;
+        if (!videoEl.paused) videoEl.pause();
       }
-      if (cortina && indiceEpAtual >= 0) {
+      if (cortina) {
         cortina.style.display = "flex";
+        cortina.style.position = "fixed";
+        cortina.style.zIndex = "2147483647";
       }
     }
 
@@ -512,10 +515,15 @@
       if (cortina) {
         cortina.style.display = "none";
       }
+      if (videoEl) {
+        videoEl.muted = false;
+      }
     }
 
     window.addEventListener("blur", ativarCortinaProtecao);
     window.addEventListener("focus", desativarCortinaProtecao);
+    window.addEventListener("pagehide", ativarCortinaProtecao);
+    window.addEventListener("pageshow", desativarCortinaProtecao);
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         ativarCortinaProtecao();
