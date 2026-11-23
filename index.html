@@ -658,10 +658,12 @@
 
     async function buscarCatalogo() {
       try {
-        const res = await fetch(API_URL);
+       const res = await fetch(API_URL + window.location.search);
         if (res.status === 403) {
-          document.getElementById("gridSeries").innerHTML = "<div class='col-span-full text-center py-12 px-4'><i class='fa-solid fa-ban text-4xl text-red-500 mb-2'></i><p class='text-red-400 font-bold text-sm'>Acesso Suspenso (403)</p><p class='text-gray-400 text-xs mt-1'>Sua conta não tem autorização para acessar o catálogo.</p></div>";
-          return;
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            }
+            return;
         }
 
         const data = await res.json();
