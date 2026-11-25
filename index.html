@@ -1095,8 +1095,12 @@
 
       if (ep.is_vip && !usuarioIsVip) {
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
-        if (confirm("🔒 Este conteúdo é exclusivo para assinantes VIP! Deseja assinar para ter acesso imediato?")) {
-          abrirVip();
+        if (tg?.showConfirm) {
+            tg.showConfirm("🔒 Este conteúdo é exclusivo para assinantes VIP!\n\nDeseja assinar para ter acesso imediato?", (confirmado) => {
+                if (confirmado) abrirVip();
+            });
+        } else {
+            abrirVip();
         }
         return;
       }
