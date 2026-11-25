@@ -310,7 +310,7 @@
               </span>
             </div>
 
-            <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 left-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
+            <button id="btnSairFullscreen" onclick="alternarTelaCheia(); event.stopPropagation();" class="controles-imersivos hidden absolute top-4 right-4 bg-black/80 hover:bg-black text-white border border-gray-700/80 px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5 z-[100000] shadow-2xl backdrop-blur active:scale-95 transition">
               <i class="fa-solid fa-compress"></i> Sair da Tela Cheia
             </button>
 
@@ -437,6 +437,7 @@
       } else {
         textoIdentificador = "Séries Turcas NV";
       }
+     wm.style.opacity = "0.28";
       wm.innerText = textoIdentificador;
 
       const posicoes = [
