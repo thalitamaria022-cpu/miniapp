@@ -101,7 +101,25 @@
       visibility: hidden !important;
       pointer-events: none !important;
     }
+/* Ajustes exclusivos para o modo de Ecrã Inteiro */
+:fullscreen #overlayEpisodio,
+:-webkit-full-screen #overlayEpisodio,
+.fullscreen #overlayEpisodio {
+    padding-top: 42px !important;
+}
 
+:fullscreen #btnSairFullscreen,
+:-webkit-full-screen #btnSairFullscreen,
+.fullscreen #btnSairFullscreen {
+    top: 42px !important;
+}
+
+:fullscreen #blocoBotoesNavegacao,
+:-webkit-full-screen #blocoBotoesNavegacao,
+.fullscreen #blocoBotoesNavegacao {
+    bottom: 0 !important;
+    padding-bottom: 12px !important;
+}
     /* Marca d'água Anti-Gravação: Sem Sombra, Translúcida e Grande no PC */
     .watermark-antigravacao {
       position: absolute;
