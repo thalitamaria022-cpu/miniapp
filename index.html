@@ -101,19 +101,29 @@
       visibility: hidden !important;
       pointer-events: none !important;
     }
-/* Ajustes exclusivos para o modo de Ecrã Inteiro */
+/* Oculta o título, episódio e HD na vista inicial (vídeo pequeno) */
+#overlayEpisodio {
+    display: none !important;
+}
+
+/* Exibe e ajusta a posição do cabeçalho SOMENTE em ecrã inteiro */
 :fullscreen #overlayEpisodio,
 :-webkit-full-screen #overlayEpisodio,
-.fullscreen #overlayEpisodio {
-    padding-top: 42px !important;
+.fullscreen #overlayEpisodio,
+:has(#btnSairFullscreen:not(.hidden)) #overlayEpisodio {
+    display: flex !important;
+    padding-top: 60px !important;
 }
 
+/* Ajusta a posição do botão Sair da Tela Cheia */
 :fullscreen #btnSairFullscreen,
 :-webkit-full-screen #btnSairFullscreen,
-.fullscreen #btnSairFullscreen {
-    top: 42px !important;
+.fullscreen #btnSairFullscreen,
+:has(#btnSairFullscreen:not(.hidden)) #btnSairFullscreen {
+    top: 60px !important;
 }
 
+/* Barra de progresso no rodapé em ecrã inteiro */
 :fullscreen #blocoBotoesNavegacao,
 :-webkit-full-screen #blocoBotoesNavegacao,
 .fullscreen #blocoBotoesNavegacao {
