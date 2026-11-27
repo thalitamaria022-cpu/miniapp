@@ -425,6 +425,30 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
+    // Configuração do Supabase para validação de assinaturas VIP
+const SUPABASE_URL = "https://plxldjjvufchgxnxhsvl.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBseGxkamp2dWZjaGd4bnhoc3ZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNTQ5MTMsImV4cCI6MjA1NTkzMDkxM30.b5d0rBdLZxOE6UhHl54hkjH0EmyvkziWA91D94voLlU";
+
+async function verificarAssinaturaVIP(idUsuario) {
+    if (!idUsuario) return false;
+    try {
+        const agora = new Date().toISOString();
+        const url = `${SUPABASE_URL}/rest/v1/assinaturas?user_id=eq.${idUsuario}&data_vencimento=gt.${agora}&select=user_id`;
+        
+        const resposta = await fetch(url, {
+            headers: {
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${SUPABASE_KEY}`
+            }
+        });
+        
+        const dados = await resposta.json();
+        return Array.isArray(dados) && dados.length > 0;
+    } catch (erro) {
+        console.error("Erro ao validar assinatura:", erro);
+        return false;
+    }
+}
     const userId = tg?.initDataUnsafe?.user?.id || urlParams.get('uid') || '';
     const telegramInitData = tg?.initData || '';
 
