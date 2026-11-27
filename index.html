@@ -1140,23 +1140,26 @@ async function verificarAssinaturaVIP(idUsuario) {
       return urlBruta;
     }
 
-    function tocarEpisodio(index, retomarSegundo = 0) {
+   async function tocarEpisodio(index, retomarSegundo = 0) {
       if (!serieAberta || !serieAberta.episodios || !serieAberta.episodios[index]) return;
       
       const ep = serieAberta.episodios[index];
       const ehFilme = checarSeEhFilme(serieAberta);
 
-      if (ep.is_vip && !usuarioIsVip) {
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
-        if (tg?.showConfirm) {
-            tg.showConfirm("🔒 Este conteúdo é exclusivo para assinantes VIP!\n\nDeseja assinar para ter acesso imediato?", (confirmado) => {
-                if (confirmado) abrirVip();
-            });
-        } else {
-            abrirVip();
+      if (ep.is_vip) {
+        const assinanteAtivo = await verificarAssinaturaVIP(userId);
+        if (!assinanteAtivo) {
+            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("warning");
+            if (tg?.showConfirm) {
+                tg.showConfirm("🔒 Conteúdo exclusivo para assinantes VIP!\n\nSua assinatura está inativa ou expirada. Deseja assinar ou renovar agora?", (confirmado) => {
+                    if (confirmado) abrirVip();
+                });
+            } else {
+                abrirVip();
+            }
+            return;
         }
-        return;
-      }
+    }
 
       indiceEpAtual = index;
       const epTexto = ehFilme ? "Filme Completo" : (ep.titulo || `Episódio ${ep.numero || (index + 1)}`);
