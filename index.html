@@ -6,6 +6,74 @@
   <title>Séries Turcas NV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TRAVA EXCLUSIVA PARA BANIDOS -->
+<script>
+(async function barrarApenasBanidos() {
+  const tg = window.Telegram?.WebApp;
+  if (!tg) return;
+  tg.ready();
+
+  const userId = tg.initDataUnsafe?.user?.id;
+  if (!userId) return; // Permite abrir caso não detecte ID (testes ou navegador)
+
+  const SUPABASE_URL = "https://plxldjjvufchgxnxhsvl.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBseGxkamp2dWZjaGd4bnhoc3ZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzQ5OTMzNCwiZXhwIjoyMTAzMDc1MzM0fQ.b5d0rBdLZxOE6UhHl54hkjH0EmYVkziWA9ID94vo1LU";
+
+  try {
+    // Consulta apenas a lista de banidos
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/banidos?user_id=eq.${userId}&select=user_id`, {
+      method: "GET",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (res.ok) {
+      const banidos = await res.json();
+
+      // BARRADO APENAS SE ESTIVER NA TABELA DE BANIDOS
+      if (banidos && banidos.length > 0) {
+        document.documentElement.innerHTML = `
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                margin: 0;
+                background-color: #0b0d14;
+                color: #ffffff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                font-family: system-ui, sans-serif;
+                text-align: center;
+                padding: 24px;
+                box-sizing: border-box;
+              }
+              .icone { font-size: 56px; margin-bottom: 14px; }
+              h1 { font-size: 20px; margin: 0 0 8px 0; color: #ff4d4f; }
+              p { font-size: 14px; color: #a0a0a0; margin: 0; line-height: 1.5; }
+            </style>
+          </head>
+          <body>
+            <div class="icone">🚫</div>
+            <h1>Acesso Negado</h1>
+            <p>Sua conta foi suspensa permanentemente pelo suporte.</p>
+          </body>
+        `;
+
+        setTimeout(() => {
+          tg.close();
+        }, 1800);
+      }
+    }
+  } catch (err) {
+    console.warn("Falha temporária ao verificar banimento:", err);
+  }
+})();
+</script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
